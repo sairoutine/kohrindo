@@ -16,6 +16,9 @@
 	"mysql": "*",
 	"config": "*",
 	"mysql-activerecord": "*",
-	"date-utils": "*"
+	"date-utils": "*",
+	"passport": "*",
+	"passport-twitter": "*",
+	"express-session": "*"
   }
 }

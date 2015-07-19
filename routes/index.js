@@ -1,11 +1,18 @@
 var express = require('express');
 var router = express.Router();
 
-/* TOP ページ */
+/* indexページ */
 router.get('/', function(req, res, next) {
-	/* viewに渡す変数 */
-	data = {};
-	res.render('index', data);
+ 	/* viewに渡すパラメータ */
+	var data = {};
+
+	/* 感想数 */
+	DB.select('count(*) as impression_num', false);
+	DB.get('impression', function (err, rows, fields) {
+		data.impression_num = rows[0].impression_num;
+		res.render('index', data);
+	});
 });
+
 
 module.exports = router;

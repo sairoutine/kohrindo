@@ -1,9 +1,33 @@
+/* 環境変数の確認 */
+if (!process.env.TWITTER_CONSUMER_KEY){
+	console.log('TWITTER_CONSUMER_KEY を環境変数に指定してください。');
+	throw new Error();
+}
+if (!process.env.TWITTER_CONSUMER_SECRET){
+	console.log('TWITTER_CONSUMER_SECRET を環境変数に指定してください。');
+	throw new Error();
+}
+
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var session = require('express-session');
+var passport = require('passport');
+var TwitterStrategy = require('passport-twitter').Strategy;
+
+/* パスポート用(アトで調査する) */
+passport.serializeUser(function(user, done) {
+  done(null, user);
+});
+
+passport.deserializeUser(function(obj, done) {
+  done(null, obj);
+});
+
+
 
 /* MYSQLコネクション用モジュール */
 var mysql_activerecord = require('mysql-activerecord');
@@ -42,6 +66,26 @@ DB = new mysql_activerecord.Adapter({
 
 BASE_PATH = 'http://sai-chan.com:3500/';
 
+passport.use(new TwitterStrategy(
+	{
+		consumerKey: process.env.TWITTER_CONSUMER_KEY,
+		consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
+		callbackURL: BASE_PATH + "auth/twitter/callback"
+	},
+	function(token, tokenSecret, profile, done) {
+		console.log('token:' + token);
+		console.log('tokensecret:' + tokenSecret);
+	    done(null, profile.id);
+	}
+));
+
+// -- 追加しところ --
+app.use(session({secret: "hogesecret"})); // session有効
+app.use(passport.initialize()); // passportの初期化処理
+app.use(passport.session()); // passportのsessionを設定(中身はしらぬ)
+// -- 追加ココまで --
+
+
 // indexページ
 var routes      = require('./routes/index');
 app.use('/', routes);
@@ -53,6 +97,19 @@ app.use('/doujinshi', doujinshi);
 // 同人誌感想一覧・登録処理
 var impression  = require('./routes/impression');
 app.use('/impression', impression);
+
+
+// ツイッター認証ページ
+app.get("/auth/twitter", passport.authenticate('twitter'));
+
+// Twitterからcallbackうける
+app.get("/auth/twitter/callback", passport.authenticate('twitter', {
+  successRedirect: '/',
+  failureRedirect: '/'
+}));
+
+
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
