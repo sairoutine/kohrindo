@@ -18,17 +18,6 @@ var session = require('express-session');
 var passport = require('passport');
 var TwitterStrategy = require('passport-twitter').Strategy;
 
-/* パスポート用(アトで調査する) */
-passport.serializeUser(function(user, done) {
-  done(null, user);
-});
-
-passport.deserializeUser(function(obj, done) {
-  done(null, obj);
-});
-
-
-
 /* MYSQLコネクション用モジュール */
 var mysql_activerecord = require('mysql-activerecord');
 
@@ -75,9 +64,116 @@ passport.use(new TwitterStrategy(
 	function(token, tokenSecret, profile, done) {
 		console.log('token:' + token);
 		console.log('tokensecret:' + tokenSecret);
-	    done(null, profile.id);
+
+		/* ここでユーザーが存在するかしないかチェックする */
+		DB.select('id');
+		DB.where('twitter_id', profile.id);
+		DB.get('user_twitter', function (err, rows, fields) {
+			/* ユーザーが既に存在するか */
+			var is_exists_user = rows instanceof Array && rows.length > 0;
+
+			/* DEBUG */
+			console.log(DB._last_query());
+			console.log(err);
+
+			/* ユーザーが既に存在していれば */
+			if (is_exists_user){
+
+				/* ユーザーID */
+				var user_id = rows[0].id;
+
+				/* Twitterトークンを最新に更新しておく */
+				DB.where('twitter_id', profile.id);
+				DB.update('user_twitter',
+					{
+						consumer_key: token,
+						consumer_secret: tokenSecret
+					},
+					function (err, rows, fields){
+						/* DEBUG */
+						console.log(DB._last_query());
+						console.log(err);
+						done(null, user_id);
+					}
+				);
+			}
+			else{
+				/* ユーザーID */
+				var user_id;
+
+				/* 現在時刻 */
+				require('date-utils');
+				var dt = new Date();
+				var now = dt.toFormat("YYYY-MM-DD HH24:MI:SS");
+
+				/* TODO: 同期処理でなく非同期処理にしたい… */
+				Promise.resolve()
+				.then(function(){
+					return new Promise(function(resolve, reject){
+						/* ユーザーテーブルに登録 */
+						DB.insert('user', {
+								displayname: profile.displayName,
+								create_time: now,
+								update_time: now
+							},
+							function (err, info) {
+								/* DEBUG */
+								console.log(DB._last_query());
+								console.log(err);
+
+								/* ユーザーID */
+								user_id = info.insertId;
+
+								/* つぎのthenへ */
+								resolve();
+							}
+						);
+					});
+				})
+				.then(function(){
+					return new Promise(function(resolve, reject){
+						/* ツイッターテーブルに登録 */
+						DB.insert('user_twitter', {
+								id: user_id,
+								twitter_id: profile.id,
+								consumer_key: token,
+								consumer_secret: tokenSecret,
+								create_time: now,
+								update_time: now
+							},
+							function (err, info) {
+								/* DEBUG */
+								console.log(DB._last_query());
+								console.log(err);
+
+								/* つぎのthenへ */
+								resolve();
+							}
+						);
+					});
+				})
+				.then(function(){
+					done(null, user_id);
+				});
+			}
+		});
+		/* ユーザー認証に失敗 */
+		// done(null, false);
 	}
 ));
+
+/* パスポート用(アトで調査する) */
+passport.serializeUser(function(user_id, done) {
+	done(null, user_id);
+});
+
+passport.deserializeUser(function(user_id, done) {
+	/* obj にはserialize 時のデータが入ってる */
+	console.log('deserializeUser');
+	done(null, user_id);
+});
+
+
 
 // -- 追加しところ --
 app.use(session({secret: "hogesecret"})); // session有効
@@ -108,7 +204,11 @@ app.get("/auth/twitter/callback", passport.authenticate('twitter', {
   failureRedirect: '/'
 }));
 
-
+// ログアウト
+app.get("/auth/logout", function(req, res){
+    req.logout();
+    res.redirect("/");
+});
 
 
 // catch 404 and forward to error handler

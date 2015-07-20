@@ -23,3 +23,28 @@ CREATE TABLE `impression` (
   PRIMARY KEY (`id`),
   KEY `i1` (`doujinshi_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='感想の一覧';
+
+
+CREATE TABLE `user` (
+  `id`           int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID(このサービス上の内部で使う)',
+  -- `username`     varchar(255)                             COMMENT 'ユーザーネーム(ログイン等で使う)',
+  `displayname`  varchar(255)     NOT NULL                COMMENT 'ニックネーム',
+  `create_time`  datetime         NOT NULL                COMMENT '作成日時',
+  `update_time`  datetime         NOT NULL                COMMENT '更新日時',
+  `delete_time`  datetime                  DEFAULT NULL   COMMENT '削除日時',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='ユーザー管理テーブル';
+
+
+CREATE TABLE `user_twitter` (
+  `id`              int(10) unsigned NOT NULL                COMMENT 'ID(user.idの外部キー)',
+  `twitter_id`      int(10) unsigned NOT NULL                COMMENT 'ID(Twitter内部で使われてる)',
+  `consumer_key`    varchar(255)     NOT NULL                COMMENT 'consumer_key',
+  `consumer_secret` varchar(255)     NOT NULL                COMMENT 'consumer_secret_key',
+  `create_time`     datetime         NOT NULL                COMMENT '作成日時',
+  `update_time`     datetime         NOT NULL                COMMENT '更新日時',
+  `delete_time`     datetime                  DEFAULT NULL   COMMENT '削除日時',
+  PRIMARY KEY (`id`),
+  -- UNIQUE にする
+  KEY `i1` (`twitter_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Twitterで認証したユーザー';
