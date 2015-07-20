@@ -1,3 +1,4 @@
+
 var express = require('express');
 var router = express.Router();
 
@@ -6,6 +7,9 @@ router.get('/', function(req, res, next) {
  	/* viewに渡すパラメータ */
 	var data = {};
 	data.title = '同人誌一覧';
+
+	/* 認証しているか否か */
+	data.isAuthenticated = req.isAuthenticated();
 
 	DB.select('*');
 	DB.get('doujinshi', function (err, rows, fields) {
@@ -18,6 +22,9 @@ router.get('/', function(req, res, next) {
 router.get('/:id', function(req, res, next) {
 	var doujinshi_id = req.params.id;
 	var data ={};
+
+	/* 認証しているか否か */
+	data.isAuthenticated = req.isAuthenticated();
 
 	new Promise(function(resolve){
 		DB.select('*');
@@ -55,6 +62,12 @@ router.get('/:id', function(req, res, next) {
 
 /* 同人誌の登録処理 */
 router.post('/register', function(req, res, next) {
+
+	/* 認証処理 */
+	if(!req.isAuthenticated()) {
+	   res.redirect(BASE_PATH);
+	}
+
 	/* viewに渡すパラメータ */
 	var data = {};
 

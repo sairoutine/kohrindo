@@ -6,6 +6,9 @@ router.get('/', function(req, res, next) {
  	/* viewに渡すパラメータ */
 	var data = {};
 
+	/* 認証しているか否か */
+	data.isAuthenticated = req.isAuthenticated();
+
 	/* 感想数 */
 	DB.select('count(*) as impression_num', false);
 	DB.get('impression', function (err, rows, fields) {

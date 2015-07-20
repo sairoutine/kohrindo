@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ユーザー一覧</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <h1>ユーザー一覧</h1>
+	<p>Welcome to ユーザー一覧</p>
+	<% list.forEach(function(row){ %>
+	ユーザー名：<a href="./user/<%= row.id %>"><%= row.displayname %></a><br />
+	<% }) %>
+
+  </body>
+</html>

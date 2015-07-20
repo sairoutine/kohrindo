@@ -15,6 +15,7 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var session = require('express-session');
+var MemcachedStore = require('connect-memcached')(session);
 var passport = require('passport');
 var TwitterStrategy = require('passport-twitter').Strategy;
 
@@ -76,11 +77,15 @@ passport.use(new TwitterStrategy(
 			console.log(DB._last_query());
 			console.log(err);
 
+			/* ユーザーID */
+			var user_id;
+
+
 			/* ユーザーが既に存在していれば */
 			if (is_exists_user){
 
 				/* ユーザーID */
-				var user_id = rows[0].id;
+				user_id = rows[0].id;
 
 				/* Twitterトークンを最新に更新しておく */
 				DB.where('twitter_id', profile.id);
@@ -98,9 +103,6 @@ passport.use(new TwitterStrategy(
 				);
 			}
 			else{
-				/* ユーザーID */
-				var user_id;
-
 				/* 現在時刻 */
 				require('date-utils');
 				var dt = new Date();
@@ -175,8 +177,12 @@ passport.deserializeUser(function(user_id, done) {
 
 
 
-// -- 追加しところ --
-app.use(session({secret: "hogesecret"})); // session有効
+app.use(session({
+	secret: "hogesecret",
+	key: 'sid',
+	cookie: {maxAge: 1000 * 60 * 60 * 24 * 7}, // 1week
+	store: new MemcachedStore({hosts: ['localhost:11211']})
+}));
 app.use(passport.initialize()); // passportの初期化処理
 app.use(passport.session()); // passportのsessionを設定(中身はしらぬ)
 // -- 追加ココまで --
@@ -190,10 +196,9 @@ app.use('/', routes);
 var doujinshi   = require('./routes/doujinshi');
 app.use('/doujinshi', doujinshi);
 
-// 同人誌感想一覧・登録処理
-var impression  = require('./routes/impression');
-app.use('/impression', impression);
-
+// ユーザーページ・マイページ・ユーザー一覧
+var user = require('./routes/user');
+app.use('/user', user);
 
 // ツイッター認証ページ
 app.get("/auth/twitter", passport.authenticate('twitter'));

@@ -19,6 +19,7 @@
 	"date-utils": "*",
 	"passport": "*",
 	"passport-twitter": "*",
-	"express-session": "*"
+	"express-session": "*",
+	"connect-memcached": "*"
   }
 }
