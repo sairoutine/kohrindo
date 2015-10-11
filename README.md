@@ -4,10 +4,12 @@ git clone https://github.com/sairoutine/kohrindo.git
 sudo npm install -g supervisor
 # Memcached Install
 sudo yum install -y memcached
+sudo chkconfig memcached on
 sudo service memcached start
 # Mysql 5.6 Install
 sudo yum -y install http://dev.mysql.com/get/mysql-community-release-el6-5.noarch.rpm
 sudo yum -y install mysql-community-server
+sudo chkconfig mysqld on
 sudo service mysqld start
 # Install node v1.2
 fab root_install_node12 -H localhost
