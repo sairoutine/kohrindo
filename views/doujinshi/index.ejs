@@ -1,12 +1,12 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-  </head>
-  <body>
-    <h1><%= title %></h1>
-	<p>Welcome to <%= title %></p>
+<% include ../_header %>
+<% include ../_header_index %>
+<div class="panel panel-default">
+	<div class="panel-heading">
+		<%= title %>
+	</div>
+	<div class="panel-body">
+
+
 	<% list.forEach(function(row){ %>
 	同人誌タイトル：<a href="./doujinshi/<%= row.id %>"><%= row.title %></a><br />
 		著者：<%= row.author %><br /><br />
@@ -17,5 +17,7 @@
 		著者:<input type="text" name="author"><br />
 		<input type="submit" value="登録">
 	</form>
-  </body>
-</html>
+	</div>
+</div>
+<% include ../_footer_index %>
+<% include ../_footer %>
