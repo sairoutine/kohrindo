@@ -200,6 +200,14 @@ app.use('/doujinshi', doujinshi);
 var user = require('./routes/user');
 app.use('/user', user);
 
+// ヘルプ
+var help = require('./routes/help');
+app.use('/help', help);
+
+// 検索
+var search = require('./routes/search');
+app.use('/search', search);
+
 // ツイッター認証ページ
 app.get("/auth/twitter", passport.authenticate('twitter'));
 
