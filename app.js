@@ -193,8 +193,12 @@ var routes      = require('./routes/index');
 app.use('/', routes);
 
 // 同人誌一覧
-var doujinshi   = require('./routes/doujinshi');
-app.use('/doujinshi', doujinshi);
+var doujin      = require('./routes/doujin');
+app.use('/doujin', doujin);
+
+// 感想一覧
+var impression  = require('./routes/impression');
+app.use('/impression', impression);
 
 // ユーザーページ・マイページ・ユーザー一覧
 var user = require('./routes/user');
