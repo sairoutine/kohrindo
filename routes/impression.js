@@ -2,24 +2,19 @@
 var express = require('express');
 var router = express.Router();
 
-/* 同人誌の一覧 */
-router.get('/', function(req, res, next) {
+/* 感想一覧 */
+router.get('/list', function(req, res, next) {
  	/* viewに渡すパラメータ */
 	var data = {};
-	data.title = '同人誌一覧';
 
 	/* 認証しているか否か */
 	data.isAuthenticated = req.isAuthenticated();
 
-	DB.select('*');
-	DB.get('doujinshi', function (err, rows, fields) {
-		data.list = rows;
-		res.render('doujinshi/index', data);
-	});
+	res.render('impression/list', data);
 });
 
-/* 同人誌の個別ページ */
-router.get('/:id', function(req, res, next) {
+/* 感想の個別ページ */
+router.get('/i/:id', function(req, res, next) {
 	var doujinshi_id = req.params.id;
 	var data ={};
 
@@ -56,42 +51,21 @@ router.get('/:id', function(req, res, next) {
 			});
 		});
 	}).then(function(){
-		res.render('doujinshi/indivisual', data);
+		res.render('impression/i', data);
 	});
 });
 
-/* 同人誌の登録処理 */
-router.post('/register', function(req, res, next) {
-
-	/* 認証処理 */
-	if(!req.isAuthenticated()) {
-	   res.redirect(BASE_PATH);
-	}
-
+/* 感想の登録のための入力画面 */
+router.get('/register_top', function(req, res, next) {
 	/* viewに渡すパラメータ */
 	var data = {};
 
-	/* 入力値チェック */
-	if(req.body.title.length ===0 || req.body.author.length === 0){
-		res.redirect(BASE_PATH + 'doujinshi');
-		return;
-	}
-
-	require('date-utils');
-
-	var dt = new Date();
-	var now = dt.toFormat("YYYY-MM-DD HH24:MI:SS");
-
-	/* データベース登録処理 */
-	DB.insert('doujinshi', {title: req.body.title, author: req.body.author, create_time: now, update_time: now}, function (err, info) {
-		/* DEBUG */
-		console.log(DB._last_query());
-		res.redirect(BASE_PATH + 'doujinshi');
-	});
+	/* 認証しているか否か */
+	data.isAuthenticated = req.isAuthenticated();
+	res.render('impression/register_top', data);
 });
 
-
-/* 同人誌の感想登録処理 */
+/* 感想登録処理 */
 router.post('/register/:id', function(req, res, next) {
 	var doujinshi_id = req.params.id;
 
@@ -100,7 +74,7 @@ router.post('/register/:id', function(req, res, next) {
 
 	/* 入力値チェック */
 	if(req.body.article.length === 0){
-		res.redirect(BASE_PATH + 'doujinshi/' + doujinshi_id);
+		res.redirect(BASE_PATH + 'impression/' + doujinshi_id);
 		return;
 	}
 
@@ -119,7 +93,93 @@ router.post('/register/:id', function(req, res, next) {
 		function (err, info) {
 			/* DEBUG */
 			console.log(DB._last_query());
-			res.redirect(BASE_PATH + 'doujinshi/' + doujinshi_id);
+			res.redirect(BASE_PATH + 'impression/' + doujinshi_id);
+		}
+	);
+});
+
+/* 感想の登録のための入力画面 */
+router.get('/register_top', function(req, res, next) {
+	/* viewに渡すパラメータ */
+	var data = {};
+
+	/* 認証しているか否か */
+	data.isAuthenticated = req.isAuthenticated();
+	res.render('impression/register_top', data);
+});
+
+/* 感想登録処理 */
+router.post('/register/:id', function(req, res, next) {
+	var doujinshi_id = req.params.id;
+
+	/* viewに渡すパラメータ */
+	var data = {};
+
+	/* 入力値チェック */
+	if(req.body.article.length === 0){
+		res.redirect(BASE_PATH + 'impression/' + doujinshi_id);
+		return;
+	}
+
+	require('date-utils');
+
+	var dt = new Date();
+	var now = dt.toFormat("YYYY-MM-DD HH24:MI:SS");
+
+	/* データベース登録処理 */
+	DB.insert('impression', {
+			"doujinshi_id": doujinshi_id,
+			article: req.body.article,
+			create_time: now,
+			update_time: now
+		},
+		function (err, info) {
+			/* DEBUG */
+			console.log(DB._last_query());
+			res.redirect(BASE_PATH + 'impression/' + doujinshi_id);
+		}
+	);
+});
+
+/* 感想の編集のための入力画面 */
+/*
+router.get('/edit_top', function(req, res, next) {
+	// viewに渡すパラメータ
+	var data = {};
+
+	data.isAuthenticated = req.isAuthenticated();
+	res.render('impression/register_top', data);
+});
+*/
+/* 感想編集処理 */
+router.post('/edit/:id', function(req, res, next) {
+	var doujinshi_id = req.params.id;
+
+	/* viewに渡すパラメータ */
+	var data = {};
+
+	/* 入力値チェック */
+	if(req.body.article.length === 0){
+		res.redirect(BASE_PATH + 'impression/' + doujinshi_id);
+		return;
+	}
+
+	require('date-utils');
+
+	var dt = new Date();
+	var now = dt.toFormat("YYYY-MM-DD HH24:MI:SS");
+
+	/* データベース登録処理 */
+	DB.insert('impression', {
+			"doujinshi_id": doujinshi_id,
+			article: req.body.article,
+			create_time: now,
+			update_time: now
+		},
+		function (err, info) {
+			/* DEBUG */
+			console.log(DB._last_query());
+			res.redirect(BASE_PATH + 'impression/' + doujinshi_id);
 		}
 	);
 });

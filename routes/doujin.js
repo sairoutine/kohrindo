@@ -3,10 +3,10 @@ var express = require('express');
 var router = express.Router();
 
 /* 同人誌の一覧 */
-router.get('/', function(req, res, next) {
+/* :id ページング用 */
+router.get('/list', function(req, res, next) {
  	/* viewに渡すパラメータ */
 	var data = {};
-	data.title = '同人誌一覧';
 
 	/* 認証しているか否か */
 	data.isAuthenticated = req.isAuthenticated();
@@ -14,12 +14,13 @@ router.get('/', function(req, res, next) {
 	DB.select('*');
 	DB.get('doujinshi', function (err, rows, fields) {
 		data.list = rows;
-		res.render('doujinshi/index', data);
+		res.render('doujin/list', data);
 	});
 });
 
 /* 同人誌の個別ページ */
-router.get('/:id', function(req, res, next) {
+/* :id 同人誌のID */
+router.get('/i/:id', function(req, res, next) {
 	var doujinshi_id = req.params.id;
 	var data ={};
 
@@ -56,12 +57,34 @@ router.get('/:id', function(req, res, next) {
 			});
 		});
 	}).then(function(){
-		res.render('doujinshi/indivisual', data);
+		res.render('doujin/i', data);
 	});
 });
 
+/* 同人誌の編集のための入力画面 */
+/* :id 同人誌ID */
+router.get('/edit_top', function(req, res, next) {
+	/* viewに渡すパラメータ */
+	var data = {};
+
+	/* 認証しているか否か */
+	data.isAuthenticated = req.isAuthenticated();
+
+	res.render('doujin/edit_top', data);
+});
+
+/* 同人誌の登録のための入力画面 */
+router.get('/register_top', function(req, res, next) {
+	/* viewに渡すパラメータ */
+	var data = {};
+
+	/* 認証しているか否か */
+	data.isAuthenticated = req.isAuthenticated();
+	res.render('doujin/register_top', data);
+});
+
 /* 同人誌の登録処理 */
-router.post('/register', function(req, res, next) {
+router.post('/register_by_user', function(req, res, next) {
 
 	/* 認証処理 */
 	if(!req.isAuthenticated()) {
@@ -73,7 +96,7 @@ router.post('/register', function(req, res, next) {
 
 	/* 入力値チェック */
 	if(req.body.title.length ===0 || req.body.author.length === 0){
-		res.redirect(BASE_PATH + 'doujinshi');
+		res.redirect(BASE_PATH + 'doujin/list');
 		return;
 	}
 
@@ -86,43 +109,13 @@ router.post('/register', function(req, res, next) {
 	DB.insert('doujinshi', {title: req.body.title, author: req.body.author, create_time: now, update_time: now}, function (err, info) {
 		/* DEBUG */
 		console.log(DB._last_query());
-		res.redirect(BASE_PATH + 'doujinshi');
+		res.redirect(BASE_PATH + 'doujin/list/');
 	});
 });
 
-
-/* 同人誌の感想登録処理 */
-router.post('/register/:id', function(req, res, next) {
-	var doujinshi_id = req.params.id;
-
-	/* viewに渡すパラメータ */
-	var data = {};
-
-	/* 入力値チェック */
-	if(req.body.article.length === 0){
-		res.redirect(BASE_PATH + 'doujinshi/' + doujinshi_id);
-		return;
-	}
-
-	require('date-utils');
-
-	var dt = new Date();
-	var now = dt.toFormat("YYYY-MM-DD HH24:MI:SS");
-
-	/* データベース登録処理 */
-	DB.insert('impression', {
-			"doujinshi_id": doujinshi_id,
-			article: req.body.article,
-			create_time: now,
-			update_time: now
-		},
-		function (err, info) {
-			/* DEBUG */
-			console.log(DB._last_query());
-			res.redirect(BASE_PATH + 'doujinshi/' + doujinshi_id);
-		}
-	);
+/* クーリエから同人誌登録 */
+router.get('/register_by_coolier', function(req, res, next) {
+	res.redirect(BASE_PATH + 'doujin/list/');
 });
-
 
 module.exports = router;
