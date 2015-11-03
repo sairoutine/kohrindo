@@ -1,0 +1,83 @@
+<% include ../_header %>
+<% include ../_header_index %>
+<div class="panel panel-default">
+	<div class="panel-heading">
+		作品詳細
+		<a href="/doujin/edit_top"><span class="glyphicon glyphicon-pencil">　</span></a>
+	</div>
+	<div class="panel-body">
+		<div class="media">
+			<div class="media-left media-middle">
+				<img src="/img/noimage.gif" class="media-object img-thumbnail" alt="<%= title %>">
+			</div>
+			<div class="media-body">
+				<div class="row">
+					<div class="col-md-12">
+						タイトル：<%= title %>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-12">
+						著者名：<%= author %>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-12">
+						サークル：<%= author %>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-12">
+						詳細URL：http://www.sai-chan.com/
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+	<div class="panel panel-default">
+	<div class="panel-heading">
+		この作品の感想
+	</div>
+	<div class="panel-body">
+		<form action="/impression/register" method="post" role="form">
+			<input type="hidden" name="id" value="<%= id %>">
+			<div class="form-group">
+				<label for="body" class="sr-only">感想を投稿</label>
+				<textarea name="body" class="form-control" rows="5" placeholder="感想を投稿する"></textarea><br />
+				<div class="text-right">
+					<button type="submit" class="btn btn-success">感想を投稿</button>
+				</div>
+			</div>
+		</form>
+		<hr />
+
+		<% impression.forEach(function(row){ %>
+			<div class="row">
+				<div class="col-md-12 text-left">
+					<a href="/user/i/1">さい</a>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-12">
+					<%= row.article %>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-12 text-right">
+					<%= row.create_time %>
+				</div>
+			</div>
+			<hr />
+		<% }) %>
+
+		<nav>
+			<ul class="pager">
+				<li><a href=""><span aria-hidden="true">&larr;</span>前へ</a></li>
+				<li><a href="/doujin/i/<%= id %>?since_id=1">次へ<span aria-hidden="true">&rarr;</span></a></li>
+			</ul>
+		</nav>
+	</div>
+</div>
+<% include ../_footer_index %>
+<% include ../_footer %>

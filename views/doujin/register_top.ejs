@@ -1,0 +1,77 @@
+<% include ../_header %>
+<% include ../_header_index %>
+<div class="panel panel-default">
+	<div class="panel-heading">
+		作品の検索
+	</div>
+	<div class="panel-body">
+		感想を投稿したい作品が既に登録されているか、<br />
+		まず検索してみましょう！<br />
+		<strong>作品の詳細ページから感想を投稿することができます。</strong><br />
+		<br />
+		<form action="/search" method="GET">
+				<div class="input-group">
+					<input type="text" name="query" class="form-control" placeholder="本のタイトル名・著者名で検索">
+					<span class="input-group-btn">
+						<input type="submit" class="btn btn-success" value="検索">
+					</span>
+				</div>
+		</form>
+	</div>
+</div>
+<div class="panel panel-default">
+	<div class="panel-heading">
+		感想の投稿
+	</div>
+	<div class="panel-body">
+		検索しても作品が登録されてなかったら、<br />
+		ここから作品の登録と感想の投稿をしましょう！<br />
+		<br />
+		<form enctype="multipart/form-data" class="form-horizontal" role="form">
+			<div class="form-group">
+				<label class="control-label col-sm-2" for="title">タイトル</label>
+				<div class="col-sm-10">
+					<input type="text" name="title" class="form-control" id="title" placeholder="">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-sm-2" for="title">表紙画像</label>
+				<div class="col-sm-10">
+					<img src="/img/noimage.gif" width="150" height="150" class="img-thumbnail img-responsive" id="thumbnail" alt="<%= "title" %>">
+					<input type="file" name="image"  accept="image/*">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-sm-2" for="author">著者名</label>
+				<div class="col-sm-10">
+					<input type="author" class="form-control" id="author" placeholder="">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-sm-2" for="circle">サークル</label>
+				<div class="col-sm-10">
+					<input type="circle" class="form-control" id="circle" placeholder="">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-sm-2" for="url">詳細URL</label>
+				<div class="col-sm-10">
+					<input type="url" class="form-control" id="url" placeholder="">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-sm-2" for="body">感想</label>
+				<div class="col-sm-10">
+					<textarea name="body" class="form-control" id="body" rows="5" placeholder="感想を投稿する"></textarea>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-offset-2 col-sm-10 text-right">
+					<button type="submit" class="btn btn-success">感想を投稿</button>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+<% include ../_footer_index %>
+<% include ../_footer %>

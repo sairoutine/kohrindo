@@ -1,31 +1,8 @@
-<% include _header %>
-<% if (!isAuthenticated){ %>
-<div class="jumbotron">
-	<div class="container">
-		<h1>香霖堂書店</h1>
-		<p>香霖堂書店は東方Projectの二次創作小説の感想を投稿するためのサイトです。</p>
-		<!--<p><small>現在の感想数：<%= impression_num %></small></p>-->
-		<p><a class="btn btn-info btn-lg" href="/auth/twitter" role="button">
-				<span class="glyphicon glyphicon-log-in">　</span>
-				Twitterでログイン
-		</a></p>
-	</div>
-</div>
-<% } %>
-<% include _header_index %>
-<!--
+<% include ../_header %>
+<% include ../_header_index %>
 <div class="panel panel-default">
 	<div class="panel-heading">
-		人気タグ
-	</div>
-	<div class="panel-body">
-	   人気タグ
-	</div>
-</div>
--->
-<div class="panel panel-default">
-	<div class="panel-heading">
-		最近投稿された感想
+		感想一覧
 	</div>
 	<div class="panel-body">
 		<ul class="media-list">
@@ -51,8 +28,13 @@
 		<hr />
 		<% } %>
 		</ul>
-		<p class="text-right"><a href="/impression/list">もっと見る</a></p>
+		<nav>
+			<ul class="pager">
+				<li><a href=""><span aria-hidden="true">&larr;</span>前へ</a></li>
+				<li><a href="/impression/list/1">次へ<span aria-hidden="true">&rarr;</span></a></li>
+			</ul>
+		</nav>
 	</div>
 </div>
-<% include _footer_index %>
-<% include _footer %>
+<% include ../_footer_index %>
+<% include ../_footer %>

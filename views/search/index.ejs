@@ -1,0 +1,30 @@
+<% include ../_header %>
+<% include ../_header_index %>
+<div class="panel panel-default">
+	<div class="panel-heading">
+		検索結果 100件
+	</div>
+	<div class="panel-body">
+		<div class="row">
+		<% for(var i=0; i<10; i++) { %>
+			<div class="col-md-3">
+				<img src="/img/noimage.gif" class="img-thumbnail">
+				<h3><a href="/doujin/i/<%= 1 %>"><%= 'test' %></a></h3>
+				<p><%= 'test' %></p>
+			</div>
+			<% if(i % 4 === 3){ %>
+			</div><div class="row">
+			<% } %>
+		<% } %>
+		</div>
+
+		<nav>
+			<ul class="pager">
+				<li><a href=""><span aria-hidden="true">&larr;</span>前へ</a></li>
+				<li><a href="/search/since_id=1">次へ<span aria-hidden="true">&rarr;</span></a></li>
+			</ul>
+		</nav>
+	</div>
+</div>
+<% include ../_footer_index %>
+<% include ../_footer %>

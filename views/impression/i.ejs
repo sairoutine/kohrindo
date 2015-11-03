@@ -1,0 +1,67 @@
+<% include ../_header %>
+<% include ../_header_index %>
+<div class="panel panel-default">
+	<div class="panel-heading">
+		感想
+		<a href="/impression/edit_top"><span class="glyphicon glyphicon-pencil">　</span></a>
+	</div>
+	<div class="panel-body">
+		<% impression.forEach(function(row){ %>
+			<div class="row">
+				<div class="col-md-12 text-left">
+					<a href="/user/i/1">さい</a>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-12">
+					<%= row.article %>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-12 text-right">
+					<%= row.create_time %>
+				</div>
+			</div>
+			<hr />
+		<% }) %>
+		<div class="text-right">⇛この作品の感想をもっと見る</div>
+	</div>
+</div>
+
+<div class="panel panel-default">
+	<div class="panel-heading">
+		作品詳細
+	</div>
+	<div class="panel-body">
+		<div class="media">
+			<div class="media-left media-middle">
+				<img src="/img/noimage.gif" class="media-object img-thumbnail" alt="<%= "title" %>">
+			</div>
+			<div class="media-body">
+				<div class="row">
+					<div class="col-md-12">
+						タイトル：<%= "title" %>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-12">
+						著者名：<%= "author" %>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-12">
+						サークル：<%= "author" %>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-12">
+						詳細URL：http://www.sai-chan.com/
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="text-right">⇛この作品ページへ</div>
+	</div>
+</div>
+<% include ../_footer_index %>
+<% include ../_footer %>
