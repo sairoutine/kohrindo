@@ -19,9 +19,6 @@ var MemcachedStore = require('connect-memcached')(session);
 var passport = require('passport');
 var TwitterStrategy = require('passport-twitter').Strategy;
 
-/* MYSQLコネクション用モジュール */
-var mysql_activerecord = require('mysql-activerecord');
-
 /* PHPでいうところのvar_dump 的なのを使いたい */
 var util = require('util');
 
@@ -44,14 +41,29 @@ app.use(cookieParser());
 // 静的ファイルを置く場所
 app.use(express.static(path.join(__dirname, 'public')));
 
-// MySQLに接続
-// TODO:コネクションの再接続
+// MySQLに接続(deprecated)
+var mysql_activerecord = require('mysql-activerecord');
 DB = new mysql_activerecord.Adapter({
   server: process.env.DB_HOST || 'localhost',
   username: process.env.DB_USER || 'root',
   password: process.env.DB_PASS || '',
   database: process.env.DB_NAME || 'doujinshi',
   reconnectTimeout: 2000
+});
+
+// MySQLに接続
+knex = require('knex')({
+	client: 'mysql',
+	connection: {
+		host     : '127.0.0.1',
+		user     : 'root',
+		password : '',
+		database : 'doujinshi'
+	},
+ 	pool: {
+		min: 1,
+		max: 10
+	}
 });
 
 BASE_PATH = 'http://sai-chan.com:3500/';
@@ -243,6 +255,7 @@ if (app.get('env') === 'development') {
   app.use(function(err, req, res, next) {
     res.status(err.status || 500);
     res.render('error', {
+      isAuthenticated: false,
       message: err.message,
       error: err
     });
@@ -254,6 +267,7 @@ if (app.get('env') === 'development') {
 app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error', {
+    isAuthenticated: false,
     message: err.message,
     error: {}
   });

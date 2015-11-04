@@ -7,19 +7,21 @@
   },
   "dependencies": {
     "body-parser": "~1.13.1",
+    "config": "*",
+    "connect-memcached": "*",
     "cookie-parser": "~1.3.5",
+    "date-utils": "*",
     "debug": "~2.2.0",
     "ejs": "~2.3.2",
     "express": "~4.13.0",
+    "express-session": "*",
+    "knex": "^0.9.0",
     "morgan": "~1.6.1",
-    "serve-favicon": "~2.3.0",
-	"mysql": "*",
-	"config": "*",
-	"mysql-activerecord": "*",
-	"date-utils": "*",
-	"passport": "*",
-	"passport-twitter": "*",
-	"express-session": "*",
-	"connect-memcached": "*"
+    "multer": "^1.1.0",
+    "mysql": "*",
+    "mysql-activerecord": "*",
+    "passport": "*",
+    "passport-twitter": "*",
+    "serve-favicon": "~2.3.0"
   }
 }
