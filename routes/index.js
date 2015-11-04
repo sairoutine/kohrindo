@@ -10,10 +10,16 @@ router.get('/', function(req, res, next) {
 	data.isAuthenticated = req.isAuthenticated();
 
 	/* 感想数 */
-	DB.select('count(*) as impression_num', false);
-	DB.get('impression', function (err, rows, fields) {
+	knex.select(
+		knex.raw('count(*) as impression_num')
+	)
+	.from('impression')
+	.then(function(rows) {
 		data.impression_num = rows[0].impression_num;
 		res.render('index', data);
+	})
+	.catch(function(err_message) {
+		next(new Error(err_message));
 	});
 });
 
