@@ -135,7 +135,8 @@ router.post('/edit', upload.single('thumbnail'), function(req, res, next) {
 		'displayname': displayname,
 		'thumbnail': thumbnail,
 		'url': url,
-		'introduction': introduction
+		'introduction': introduction,
+		'update_time': now
 	})
 	.then(function(rows) {
 		res.redirect(BASE_PATH + 'user/edit_top');
