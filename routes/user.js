@@ -1,6 +1,11 @@
 
 var express = require('express');
 var router = express.Router();
+var multer = require('multer');
+
+var upload = multer({ dest: '../tmp/images/'});
+
+var fs = require('fs');
 
 /* ユーザーの一覧 */
 /*
@@ -53,33 +58,70 @@ router.get('/edit_top', function(req, res, next) {
 	/* 認証しているか否か */
 	data.isAuthenticated = req.isAuthenticated();
 
-	DB.select('*');
-	DB.where('id', req.user);
-	DB.get('user', function (err, rows, fields) {
+	knex.select('displayname', 'thumbnail', 'url', 'introduction')
+	.from('user')
+	.where('id', req.user)
+	.then(function(rows) {
 		data.user = rows[0];
 		res.render('user/edit_top', data);
+	})
+	.catch(function(err) {
+		next(new Error(err));
 	});
-
 });
 
 
 /* ユーザーのプロフィール編集 */
-router.post('/edit', function(req, res, next) {
+router.post('/edit', upload.single('thumbnail'), function(req, res, next) {
 
 	/* 認証処理 */
 	if(!req.isAuthenticated()) {
 	   res.redirect(BASE_PATH);
 	}
- 	/* viewに渡すパラメータ */
-	var data = {};
 
-	/* 認証しているか否か */
-	data.isAuthenticated = req.isAuthenticated();
+	/* 入力値 */
+	var displayname = req.body.displayname;
+	var url         = req.body.url;
+	var introduction= req.body.introduction;
+
+	/* 入力に誤りがあるときに呼び出す関数 */
+	var input_error = function(error_message) {
+	 	/* viewに渡すパラメータ */
+		var data = {
+			'displayname': displayname,
+			'url': url,
+			'introduction': introduction,
+			'error_message': error_message,
+			isAuthenticated: req.isAuthenticated()
+		};
+		res.render('user/edit_top', data);
+	};
 
 	/* 入力値チェック */
-	if(req.body.displayname.length ===0){
-		res.redirect(BASE_PATH + 'user/edit_top');
+	if(req.body.displayname.length === 0){
+		input_error('ニックネームが入力されていません。');
 		return;
+	}
+
+	var thumbnail = 'noimage.gif';
+	if(req.file){
+		var target_path, tmp_path;
+		tmp_path = req.file.path;
+
+		// 拡張子なんとかしなくちゃ
+		target_path = './public/img/' + req.user + '.gif';
+		fs.rename(tmp_path, target_path, function(err) {
+			if (err) {
+				throw err;
+			}
+			fs.unlink(tmp_path, function() {
+				if (err) {
+					throw err;
+				}
+			});
+		});
+
+		thumbnail = req.user + '.gif';
 	}
 
 	require('date-utils');
@@ -87,15 +129,19 @@ router.post('/edit', function(req, res, next) {
 	var dt = new Date();
 	var now = dt.toFormat("YYYY-MM-DD HH24:MI:SS");
 
-	/* データベース登録処理 */
-	DB.where('id', req.user);
-	DB.update('user',{
-		displayname: req.body.displayname
-	}, function (err, info) {
-		/* DEBUG */
-		console.log(DB._last_query());
-		console.log(err);
+	knex('user')
+	.where('id', req.user)
+	.update({
+		'displayname': displayname,
+		'thumbnail': thumbnail,
+		'url': url,
+		'introduction': introduction
+	})
+	.then(function(rows) {
 		res.redirect(BASE_PATH + 'user/edit_top');
+	})
+	.catch(function(err) {
+		next(new Error(err));
 	});
 });
 
