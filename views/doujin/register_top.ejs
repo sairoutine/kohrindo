@@ -27,42 +27,42 @@
 		検索しても作品が登録されてなかったら、<br />
 		ここから作品の登録と感想の投稿をしましょう！<br />
 		<br />
-		<form enctype="multipart/form-data" class="form-horizontal" role="form">
+		<form action="/doujin/register_by_user" enctype="multipart/form-data" method="POST" class="form-horizontal" role="form">
 			<div class="form-group">
 				<label class="control-label col-sm-2" for="title">タイトル</label>
 				<div class="col-sm-10">
-					<input type="text" name="title" class="form-control" id="title" placeholder="">
+					<input type="text" name="title" class="form-control" id="title" value="<%= title %>">
 				</div>
 			</div>
 			<div class="form-group">
 				<label class="control-label col-sm-2" for="title">表紙画像</label>
 				<div class="col-sm-10">
-					<img src="/img/noimage.gif" width="150" height="150" class="img-thumbnail img-responsive" id="thumbnail" alt="<%= "title" %>">
-					<input type="file" name="image"  accept="image/*">
+					<img src="/img/noimage.gif" width="150" height="150" class="img-thumbnail" id="thumbnail" alt="表紙画像">
+					<input type="file" name="cover_image"  accept="image/*">
 				</div>
 			</div>
 			<div class="form-group">
 				<label class="control-label col-sm-2" for="author">著者名</label>
 				<div class="col-sm-10">
-					<input type="author" class="form-control" id="author" placeholder="">
+					<input type="text" name="author" class="form-control" id="author" value="<%= author %>">
 				</div>
 			</div>
 			<div class="form-group">
 				<label class="control-label col-sm-2" for="circle">サークル</label>
 				<div class="col-sm-10">
-					<input type="circle" class="form-control" id="circle" placeholder="">
+					<input type="text" name="circle" class="form-control" id="circle" value="<%= circle %>">
 				</div>
 			</div>
 			<div class="form-group">
 				<label class="control-label col-sm-2" for="url">詳細URL</label>
 				<div class="col-sm-10">
-					<input type="url" class="form-control" id="url" placeholder="">
+					<input type="text" name="url" class="form-control" id="url" value="<%= url %>">
 				</div>
 			</div>
 			<div class="form-group">
 				<label class="control-label col-sm-2" for="body">感想</label>
 				<div class="col-sm-10">
-					<textarea name="body" class="form-control" id="body" rows="5" placeholder="感想を投稿する"></textarea>
+					<textarea name="body" class="form-control" id="body" rows="5" placeholder="感想を投稿する"><%= body %></textarea>
 				</div>
 			</div>
 			<div class="form-group">

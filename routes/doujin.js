@@ -1,6 +1,11 @@
 
 var express = require('express');
 var router = express.Router();
+var multer = require('multer');
+
+var upload = multer({ dest: '../tmp/images/'});
+
+var fs = require('fs');
 
 /* 同人誌の一覧 */
 /* :id ページング用 */
@@ -75,29 +80,74 @@ router.get('/edit_top', function(req, res, next) {
 
 /* 同人誌の登録のための入力画面 */
 router.get('/register_top', function(req, res, next) {
-	/* viewに渡すパラメータ */
-	var data = {};
+	 /* viewに渡すパラメータ */
+	var data = {
+		'title': '',
+		'author': '',
+		'circle': '',
+		'url': '',
+		'body': '',
+		isAuthenticated: req.isAuthenticated()
+	};
 
-	/* 認証しているか否か */
-	data.isAuthenticated = req.isAuthenticated();
 	res.render('doujin/register_top', data);
 });
 
 /* 同人誌の登録処理 */
-router.post('/register_by_user', function(req, res, next) {
-
+router.post('/register_by_user', upload.single('cover_image'), function(req, res, next) {
 	/* 認証処理 */
 	if(!req.isAuthenticated()) {
 	   res.redirect(BASE_PATH);
 	}
 
-	/* viewに渡すパラメータ */
-	var data = {};
+	/* 入力値 */
+	var title       = req.body.title;
+	var author      = req.body.author;
+	var circle      = req.body.circle;
+	var url         = req.body.url;
+	var body        = req.body.body;
+
+	/* 入力に誤りがあるときに呼び出す関数 */
+	var input_error = function(error_message) {
+	 	/* viewに渡すパラメータ */
+		var data = {
+			'title': title,
+			'author': author,
+			'circle': circle,
+			'url': url,
+			'body': body,
+			isAuthenticated: req.isAuthenticated()
+		};
+		res.render('user/register_top', data);
+	};
 
 	/* 入力値チェック */
-	if(req.body.title.length ===0 || req.body.author.length === 0){
-		res.redirect(BASE_PATH + 'doujin/list');
+	if(title.length === 0){
+		input_error('タイトルが入力されていません。');
 		return;
+	}
+
+	var thumbnail = 'noimage.gif';
+	var cover_image = 'noimage.gif';
+	if(req.file){
+		var target_path, tmp_path;
+		tmp_path = req.file.path;
+
+		// 拡張子なんとかしなくちゃ
+		target_path = './public/img/doujin/' + req.user + '.gif';
+		fs.rename(tmp_path, target_path, function(err) {
+			if (err) {
+				throw err;
+			}
+			fs.unlink(tmp_path, function() {
+				if (err) {
+					throw err;
+				}
+			});
+		});
+
+		thumbnail   = 'doujin/' + req.user + '.gif';
+		cover_image = 'doujin/' + req.user + '.gif';
 	}
 
 	require('date-utils');
@@ -105,11 +155,33 @@ router.post('/register_by_user', function(req, res, next) {
 	var dt = new Date();
 	var now = dt.toFormat("YYYY-MM-DD HH24:MI:SS");
 
-	/* データベース登録処理 */
-	DB.insert('doujinshi', {title: req.body.title, author: req.body.author, create_time: now, update_time: now}, function (err, info) {
-		/* DEBUG */
-		console.log(DB._last_query());
-		res.redirect(BASE_PATH + 'doujin/list/');
+	/* 作品の登録 */
+	knex('doujinshi').insert({
+			'title': title,
+			'author': author,
+			'circle': circle,
+			'url': url,
+			'thumbnail': thumbnail,
+			'cover_image': cover_image,
+			'create_time': now,
+			'update_time': now
+	})
+	.then(function(doujinshi_id) {
+		knex('impression').insert({
+				'doujinshi_id': doujinshi_id,
+				'body': body,
+				'create_time': now,
+				'update_time': now
+		})
+		.then(function(impression_id) {
+			res.redirect(BASE_PATH + 'impression/i/' + impression_id);
+		})
+		.catch(function(err) {
+			next(new Error(err));
+		});
+	})
+	.catch(function(err) {
+		next(new Error(err));
 	});
 });
 
