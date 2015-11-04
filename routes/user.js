@@ -109,7 +109,7 @@ router.post('/edit', upload.single('thumbnail'), function(req, res, next) {
 		tmp_path = req.file.path;
 
 		// 拡張子なんとかしなくちゃ
-		target_path = './public/img/' + req.user + '.gif';
+		target_path = './public/img/user/' + req.user + '.gif';
 		fs.rename(tmp_path, target_path, function(err) {
 			if (err) {
 				throw err;
@@ -121,7 +121,7 @@ router.post('/edit', upload.single('thumbnail'), function(req, res, next) {
 			});
 		});
 
-		thumbnail = req.user + '.gif';
+		thumbnail = 'user/' + req.user + '.gif';
 	}
 
 	require('date-utils');
