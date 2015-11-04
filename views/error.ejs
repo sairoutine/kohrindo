@@ -1,3 +1,14 @@
-<h1><%= message %></h1>
-<h2><%= error.status %></h2>
-<pre><%= error.stack %></pre>
+<% include _header %>
+<% include _header_index %>
+<div class="panel panel-default">
+	<div class="panel-heading">
+		Error <%= error.status %>
+	</div>
+	<div class="panel-body">
+		<h1><%= message %></h1>
+		<pre><%= error.stack %></pre>
+	</div>
+</div>
+<% include _footer_index %>
+<% include _footer %>
+
