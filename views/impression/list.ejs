@@ -6,34 +6,34 @@
 	</div>
 	<div class="panel-body">
 		<ul class="media-list">
-		<% for(var i=0; i<5; i++) { %>
+		<% impression.forEach(function(row) { %>
 		<li class="media">
 			<div class="media-left media-middle">
-				<a href="/doujin/i/1"><img src="/img/noimage.gif" class="media-object img-thumbnail" alt="test"></a>
+				<% if (row.doujinshi.thumbnail) { %>
+				<a href="/doujin/i/<%= row.doujinshi.id %>"><img src="/img/<%= row.doujinshi.thumbnail %>" class="media-object img-thumbnail" alt="表紙画像"></a>
+				<% } else { %>
+				<a href="/doujin/i/<%= row.doujinshi.id %>"><img src="/img/noimage.gif" class="media-object img-thumbnail" alt="表紙画像"></a>
+				<% } %>
 			</div>
 			<div class="media-body">
 				<div class="media-head">
 					<div class="row">
 						<div class="col-md-6">
-							<strong><a href="/doujin/i/1">書籍名</a></strong><br />
+							作品名：<strong><a href="/doujin/i/<%= row.doujinshi.id %>"><%= row.doujinshi.title %></a></strong><br />
 						</div>
 						<div class="col-md-6">
-							著者
+							著者：<%= row.doujinshi.author %>
 						</div>
 					</div>
 				</div>
-				あああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ
+				<%= row.body %>
 			</div>
 		</li>
 		<hr />
-		<% } %>
-		</ul>
-		<nav>
-			<ul class="pager">
-				<li><a href=""><span aria-hidden="true">&larr;</span>前へ</a></li>
-				<li><a href="/impression/list/1">次へ<span aria-hidden="true">&rarr;</span></a></li>
-			</ul>
-		</nav>
+		<% }); %>
+	</ul>
+
+	<% include ../_pagination %>
 	</div>
 </div>
 <% include ../_footer_index %>
