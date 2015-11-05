@@ -6,25 +6,24 @@
 		<a href="/impression/edit_top"><span class="glyphicon glyphicon-pencil">　</span></a>
 	</div>
 	<div class="panel-body">
-		<% impression.forEach(function(row){ %>
 			<div class="row">
 				<div class="col-md-12 text-left">
-					<a href="/user/i/1">さい</a>
+					<a href="/user/i/<%= user_id %>"><%= displayname %></a>
 				</div>
 			</div>
 			<div class="row">
 				<div class="col-md-12">
-					<%= row.article %>
+					<%= body %>
 				</div>
 			</div>
 			<div class="row">
 				<div class="col-md-12 text-right">
-					<%= row.create_time %>
+					<%= create_time %>
 				</div>
 			</div>
 			<hr />
-		<% }) %>
-		<div class="text-right">⇛この作品の感想をもっと見る</div>
+			<div class="text-right">
+				<a href="/doujin/i/<%= doujinshi_id %>">⇛この作品の感想をもっと見る</a></div>
 	</div>
 </div>
 
@@ -35,32 +34,35 @@
 	<div class="panel-body">
 		<div class="media">
 			<div class="media-left media-middle">
-				<img src="/img/noimage.gif" class="media-object img-thumbnail" alt="<%= "title" %>">
+				<% if(thumbnail) { %>
+				<img src="/img/<%= thumbnail %>" class="media-object img-thumbnail" alt="表紙画像">
+				<% } else { %>
+				<img src="/img/noimage.gif" class="media-object img-thumbnail" alt="表紙画像">
+				<% } %>
 			</div>
 			<div class="media-body">
 				<div class="row">
 					<div class="col-md-12">
-						タイトル：<%= "title" %>
+						タイトル：<%= title %>
 					</div>
 				</div>
 				<div class="row">
 					<div class="col-md-12">
-						著者名：<%= "author" %>
+						著者名：<%= author %>
 					</div>
 				</div>
 				<div class="row">
 					<div class="col-md-12">
-						サークル：<%= "author" %>
+						サークル：<%= circle %>
 					</div>
 				</div>
 				<div class="row">
 					<div class="col-md-12">
-						詳細URL：http://www.sai-chan.com/
+						詳細URL：<%= url %>
 					</div>
 				</div>
 			</div>
 		</div>
-		<div class="text-right">⇛この作品ページへ</div>
 	</div>
 </div>
 <% include ../_footer_index %>
