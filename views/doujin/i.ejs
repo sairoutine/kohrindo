@@ -8,7 +8,11 @@
 	<div class="panel-body">
 		<div class="media">
 			<div class="media-left media-middle">
-				<img src="/img/noimage.gif" class="media-object img-thumbnail" alt="<%= title %>">
+				<% if(thumbnail) { %>
+				<img src="/img/<%= thumbnail %>" class="media-object img-thumbnail" alt="表紙画像">
+				<% } else { %>
+				<img src="/img/noimage.gif" class="media-object img-thumbnail" alt="表紙画像">
+				<% } %>
 			</div>
 			<div class="media-body">
 				<div class="row">
@@ -23,12 +27,12 @@
 				</div>
 				<div class="row">
 					<div class="col-md-12">
-						サークル：<%= author %>
+						サークル：<%= circle %>
 					</div>
 				</div>
 				<div class="row">
 					<div class="col-md-12">
-						詳細URL：http://www.sai-chan.com/
+						詳細URL：<%= url %>
 					</div>
 				</div>
 			</div>
@@ -55,12 +59,12 @@
 		<% impression.forEach(function(row){ %>
 			<div class="row">
 				<div class="col-md-12 text-left">
-					<a href="/user/i/1">さい</a>
+					<a href="/user/i/<%= row.user_id %>"><%= row.displayname %></a>
 				</div>
 			</div>
 			<div class="row">
 				<div class="col-md-12">
-					<%= row.article %>
+					<%= row.body %>
 				</div>
 			</div>
 			<div class="row">
@@ -71,12 +75,7 @@
 			<hr />
 		<% }) %>
 
-		<nav>
-			<ul class="pager">
-				<li><a href=""><span aria-hidden="true">&larr;</span>前へ</a></li>
-				<li><a href="/doujin/i/<%= id %>?since_id=1">次へ<span aria-hidden="true">&rarr;</span></a></li>
-			</ul>
-		</nav>
+		<% include ../_pagination %>
 	</div>
 </div>
 <% include ../_footer_index %>

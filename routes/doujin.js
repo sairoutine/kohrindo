@@ -10,61 +10,158 @@ var fs = require('fs');
 /* 同人誌の一覧 */
 /* :id ページング用 */
 router.get('/list', function(req, res, next) {
+	/* 1ページに表示する同人誌件数 */
+	var limit_num = 12;
+
+	var offset       = parseInt(req.query.page) || 0;
+
  	/* viewに渡すパラメータ */
 	var data = {};
 
 	/* 認証しているか否か */
 	data.isAuthenticated = req.isAuthenticated();
 
-	DB.select('*');
-	DB.get('doujinshi', function (err, rows, fields) {
-		data.list = rows;
-		res.render('doujin/list', data);
+	/* 同人誌の感想一覧を取得 */
+	knex.select('id', 'title', 'author', 'thumbnail')
+	.from('doujinshi')
+	.orderBy('id', 'desc')
+	.limit(limit_num)
+	.offset(offset * limit_num)
+	.then(function(doujinshi_rows) {
+
+		if(doujinshi_rows.length === 0) {
+			/* TODO: Promisableにしたい */
+			data.doujinshi = [];
+			res.render('doujin/list', data);
+			return;
+		}
+
+		/* 同人誌一覧をテンプレに渡す */
+		data.doujinshi = doujinshi_rows;
+
+		knex.count('* as doujinshi_num')
+		.from('doujinshi')
+		.then(function(rows) {
+			/* ページング用 */
+			data.pagination = {
+				total_count: rows[0].doujinshi_num,
+				page_size: limit_num,
+				page_count: Math.ceil(rows[0].doujinshi_num / limit_num),
+				current_page: offset,
+				url: '/doujin/list/?page=',
+			};
+
+			res.render('doujin/list', data);
+		})
+		.catch(function(err_message) {
+			next(new Error(err_message));
+		});
+	})
+	.catch(function(err_message) {
+		next(new Error(err_message));
 	});
 });
 
 /* 同人誌の個別ページ */
 /* :id 同人誌のID */
 router.get('/i/:id', function(req, res, next) {
+	/* 1ページに表示する感想件数 */
+	var limit_num = 5;
+
 	var doujinshi_id = req.params.id;
-	var data ={};
+	var offset       = parseInt(req.query.page) || 0;
+
+	/* view に渡すパラメータ */
+	var data = {};
 
 	/* 認証しているか否か */
 	data.isAuthenticated = req.isAuthenticated();
 
-	new Promise(function(resolve){
-		DB.select('*');
-		DB.where('id', doujinshi_id);
-		DB.get('doujinshi', function (err, rows, fields) {
-			doujinshi_data = rows[0];
+	/* 同人誌情報 */
+	knex.select(['title', 'author', 'circle', 'url', 'thumbnail'])
+	.from('doujinshi')
+	.where('id', doujinshi_id)
+	.then(function(rows) {
+		data.id        = doujinshi_id;
+		data.title     = rows[0].title;
+		data.author    = rows[0].author;
+		data.circle    = rows[0].circle;
+		data.url       = rows[0].url;
+		data.thumbnail = rows[0].thumbnail;
 
-			data.id    = doujinshi_data.id;
-			data.title = doujinshi_data.title;
-			data.author= doujinshi_data.author;
+		/* 同人誌の感想一覧を取得 */
+		knex.select('id', 'user_id', 'body', 'create_time')
+		.from('impression')
+		.where('doujinshi_id', doujinshi_id)
+		.orderBy('id', 'desc')
+		.limit(limit_num)
+		.offset(offset * limit_num)
+		.then(function(impression_rows) {
 
-			/* DEBUG */
-			console.log(DB._last_query());
-			/* then の処理に飛ぶ */
-			resolve();
-		});
+			if(impression_rows.length === 0) {
+				/* TODO: Promisableにしたい */
+				data.impression = [];
+				res.render('doujin/i', data);
+				return;
+			}
 
-	}).then(function(){
-		return new Promise(function(resolve){
-			DB.select('*');
-			DB.where('doujinshi_id', doujinshi_id);
-			DB.get('impression', function (err, rows, fields) {
-				data.impression = rows;
-
-				/* DEBUG */
-				console.log(DB._last_query());
-				/* then の処理に飛ぶ */
-				resolve();
+			/* IN句用にuser_id の配列を作成 */
+			var user_ids = [];
+			impression_rows.forEach(function(row) {
+				user_ids.push(row.user_id);
 			});
+
+			/* 感想一覧のユーザー名を取得 */
+			knex.select('id', 'displayname')
+			.from('user')
+			.whereIn('id', user_ids)
+			.then(function(user_rows) {
+				/* user_id -> displayname の連想配列を作成 */
+				var user_id_displayname_hash = {};
+				user_rows.forEach(function(row) {
+					user_id_displayname_hash[row.id] = row.displayname;
+				});
+
+				/* impression_rows に displayname を追加 */
+				for(var i=0; i<impression_rows.length; i++) {
+					impression_rows[i].displayname = user_id_displayname_hash[impression_rows[i].user_id];
+				}
+
+				/* 感想一覧をテンプレに渡す */
+				data.impression = impression_rows;
+
+				knex.count('* as impression_num')
+				.from('impression')
+				.where('doujinshi_id', doujinshi_id)
+				.then(function(rows) {
+					/* ページング用 */
+					data.pagination = {
+						total_count: rows[0].impression_num,
+						page_size: limit_num,
+						page_count: Math.ceil(rows[0].impression_num / limit_num),
+						current_page: offset,
+						url: '/doujin/i/' + doujinshi_id + '?page=',
+					};
+
+					res.render('doujin/i', data);
+				})
+				.catch(function(err_message) {
+					next(new Error(err_message));
+				});
+			})
+			.catch(function(err_message) {
+				next(new Error(err_message));
+			});
+		})
+		.catch(function(err_message) {
+			next(new Error(err_message));
 		});
-	}).then(function(){
-		res.render('doujin/i', data);
+	})
+	.catch(function(err_message) {
+		next(new Error(err_message));
 	});
 });
+
 
 /* 同人誌の編集のための入力画面 */
 /* :id 同人誌ID */
@@ -169,6 +266,7 @@ router.post('/register_by_user', upload.single('cover_image'), function(req, res
 	.then(function(doujinshi_id) {
 		knex('impression').insert({
 				'doujinshi_id': doujinshi_id,
+				'user_id': req.user,
 				'body': body,
 				'create_time': now,
 				'update_time': now
