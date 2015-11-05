@@ -3,7 +3,7 @@
 <div class="panel panel-default">
 	<div class="panel-heading">
 		作品詳細
-		<a href="/doujin/edit_top"><span class="glyphicon glyphicon-pencil">　</span></a>
+		<a href="/doujin/edit_top/<%= id %>"><span class="glyphicon glyphicon-pencil">　</span></a>
 	</div>
 	<div class="panel-body">
 		<div class="media">
@@ -44,13 +44,23 @@
 		この作品の感想
 	</div>
 	<div class="panel-body">
+		<% if(my_impression.id) { %>
+		<form action="/impression/edit" method="post" role="form">
+		<% } else { %>
 		<form action="/impression/register" method="post" role="form">
+		<% } %>
 			<input type="hidden" name="id" value="<%= id %>">
+			<input type="hidden" name="impression_id" value="<%= my_impression.id %>">
 			<div class="form-group">
 				<label for="body" class="sr-only">感想を投稿</label>
-				<textarea name="body" class="form-control" rows="5" placeholder="感想を投稿する"></textarea><br />
+				<textarea name="body" class="form-control" rows="5" placeholder="感想を投稿する"><%= my_impression.body %></textarea><br />
 				<div class="text-right">
+
+					<% if(my_impression.id) { %>
+					<button type="submit" class="btn btn-success">修正</button>
+					<% } else { %>
 					<button type="submit" class="btn btn-success">感想を投稿</button>
+					<% } %>
 				</div>
 			</div>
 		</form>
