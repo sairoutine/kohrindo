@@ -18,8 +18,6 @@
     "knex": "^0.9.0",
     "morgan": "~1.6.1",
     "multer": "^1.1.0",
-    "mysql": "*",
-    "mysql-activerecord": "*",
     "passport": "*",
     "passport-twitter": "*",
     "serve-favicon": "~2.3.0"

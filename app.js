@@ -19,12 +19,9 @@ var MemcachedStore = require('connect-memcached')(session);
 var passport = require('passport');
 var TwitterStrategy = require('passport-twitter').Strategy;
 
-/* PHPでいうところのvar_dump 的なのを使いたい */
-var util = require('util');
-
 /* Config を読み込む */
 var conf = require('config');
-//console.log(conf.twitter.api_key);
+
 var app = express();
 
 // view engine setup
@@ -40,16 +37,6 @@ app.use(cookieParser());
 
 // 静的ファイルを置く場所
 app.use(express.static(path.join(__dirname, 'public')));
-
-// MySQLに接続(deprecated)
-var mysql_activerecord = require('mysql-activerecord');
-DB = new mysql_activerecord.Adapter({
-  server: process.env.DB_HOST || 'localhost',
-  username: process.env.DB_USER || 'root',
-  password: process.env.DB_PASS || '',
-  database: process.env.DB_NAME || 'doujinshi',
-  reconnectTimeout: 2000
-});
 
 // MySQLに接続
 knex = require('knex')({
@@ -68,111 +55,71 @@ knex = require('knex')({
 
 BASE_PATH = 'http://sai-chan.com:3500/';
 
-passport.use(new TwitterStrategy(
-	{
+passport.use(new TwitterStrategy({
 		consumerKey: process.env.TWITTER_CONSUMER_KEY,
 		consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
 		callbackURL: BASE_PATH + "auth/twitter/callback"
-	},
-	function(token, tokenSecret, profile, done) {
-		console.log('token:' + token);
-		console.log('tokensecret:' + tokenSecret);
+	}, function(token, tokenSecret, profile, done) {
+		console.log(profile);
+
+		/* ユーザーID */
+		var user_id;
 
 		/* ここでユーザーが存在するかしないかチェックする */
-		DB.select('id');
-		DB.where('twitter_id', profile.id);
-		DB.get('user_twitter', function (err, rows, fields) {
-			/* ユーザーが既に存在するか */
-			var is_exists_user = rows instanceof Array && rows.length > 0;
-
-			/* DEBUG */
-			console.log(DB._last_query());
-			console.log(err);
-
-			/* ユーザーID */
-			var user_id;
-
-
+		knex.select('id')
+		.from('user_twitter')
+		.where('twitter_id', profile.id)
+		.then(function(rows) {
 			/* ユーザーが既に存在していれば */
-			if (is_exists_user){
-
-				/* ユーザーID */
+			if (rows.length > 0){
 				user_id = rows[0].id;
 
 				/* Twitterトークンを最新に更新しておく */
-				DB.where('twitter_id', profile.id);
-				DB.update('user_twitter',
-					{
+				return knex('user_twitter')
+				.update({
 						consumer_key: token,
 						consumer_secret: tokenSecret
-					},
-					function (err, rows, fields){
-						/* DEBUG */
-						console.log(DB._last_query());
-						console.log(err);
-						done(null, user_id);
-					}
-				);
+				})
+				.where('twitter_id', profile.id);
 			}
-			else{
+			else{ /* ユーザーが存在してなければユーザー登録処理 */
 				/* 現在時刻 */
 				require('date-utils');
 				var dt = new Date();
 				var now = dt.toFormat("YYYY-MM-DD HH24:MI:SS");
 
-				/* TODO: 同期処理でなく非同期処理にしたい… */
-				Promise.resolve()
-				.then(function(){
-					return new Promise(function(resolve, reject){
-						/* ユーザーテーブルに登録 */
-						DB.insert('user', {
-								displayname: profile.displayName,
-								create_time: now,
-								update_time: now
-							},
-							function (err, info) {
-								/* DEBUG */
-								console.log(DB._last_query());
-								console.log(err);
+				/* TODO:profile.profile_image_url をGETして保存 */
 
-								/* ユーザーID */
-								user_id = info.insertId;
-
-								/* つぎのthenへ */
-								resolve();
-							}
-						);
-					});
+				return knex('user').insert({
+					displayname: profile.displayName,
+					introduction: profile._json.description,
+					url: profile._json.url,
+					thumbnail: null,
+					create_time: now,
+					update_time: now
 				})
-				.then(function(){
-					return new Promise(function(resolve, reject){
-						/* ツイッターテーブルに登録 */
-						DB.insert('user_twitter', {
-								id: user_id,
-								twitter_id: profile.id,
-								consumer_key: token,
-								consumer_secret: tokenSecret,
-								create_time: now,
-								update_time: now
-							},
-							function (err, info) {
-								/* DEBUG */
-								console.log(DB._last_query());
-								console.log(err);
+				.then(function (id) {
+					user_id = id;
 
-								/* つぎのthenへ */
-								resolve();
-							}
-						);
+					/* ツイッターテーブルに登録 */
+					return knex('user_twitter')
+					.insert({
+						id: user_id,
+						twitter_id: profile.id,
+						consumer_key: token,
+						consumer_secret: tokenSecret,
+						create_time: now,
+						update_time: now
 					});
-				})
-				.then(function(){
-					done(null, user_id);
 				});
 			}
+		})
+		.then(function(){
+			done(null, user_id);
+		})
+		.catch(function(err) {
+			done(err,null);
 		});
-		/* ユーザー認証に失敗 */
-		// done(null, false);
 	}
 ));
 
@@ -183,7 +130,6 @@ passport.serializeUser(function(user_id, done) {
 
 passport.deserializeUser(function(user_id, done) {
 	/* obj にはserialize 時のデータが入ってる */
-	console.log('deserializeUser');
 	done(null, user_id);
 });
 
