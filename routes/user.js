@@ -148,17 +148,55 @@ router.post('/edit', upload.single('thumbnail'), function(req, res, next) {
 
 /* 他ユーザーのマイページ */
 router.get('/i/:id', function(req, res, next) {
+	/* マイページに表示する感想件数 */
+	var limit_num = 4;
+
 	var user_id = req.params.id;
 	var data ={};
 
 	/* 認証しているか否か */
 	data.isAuthenticated = req.isAuthenticated();
 
-	DB.select('*');
-	DB.where('id', user_id);
-	DB.get('user', function (err, rows, fields) {
-		data.user = rows[0];
-		res.render('user/i', data);
+	/* ユーザー情報を取得 */
+	knex.select('displayname', 'thumbnail', 'url', 'introduction')
+	.from('user')
+	.where('id', user_id)
+	.then(function(user_rows) {
+		data.user  = user_rows[0];
+
+		/* 最近投稿した感想情報を取得 */
+		knex.select('doujinshi_id')
+		.from('impression')
+		.where('user_id', user_id)
+		.orderBy('id', 'desc')
+		.limit(limit_num)
+		.offset(0)
+		.then(function(impression_rows) {
+			var doujinshi_ids = [];
+
+			impression_rows.forEach(function(row) {
+				doujinshi_ids.push(row.doujinshi_id);
+			});
+
+			/* 最近投稿した感想の同人誌情報を取得 */
+			knex.select('id', 'title', 'author', 'circle', 'url', 'thumbnail')
+			.from('doujinshi')
+			.whereIn('id', doujinshi_ids)
+			.then(function(doujinshi_rows) {
+				data.doujinshi = doujinshi_rows;
+
+				res.render('user/i', data);
+			})
+			.catch(function(err_message) {
+				next(new Error(err_message));
+			});
+		})
+		.catch(function(err_message) {
+			next(new Error(err_message));
+		});
+	})
+	.catch(function(err_message) {
+		next(new Error(err_message));
 	});
 
 });

@@ -2,7 +2,7 @@
 <% include ../_header_index %>
 <div class="panel panel-default">
 	<div class="panel-heading">
-		プロフィールの編集
+		プロフィール
 	</div>
 	<div class="panel-body">
 		<form enctype="multipart/form-data" class="form-horizontal" role="form">
@@ -13,21 +13,25 @@
 				</div>
 			</div>
 			<div class="form-group">
-				<label class="control-label col-sm-2" for="title">プロフィール画像</label>
+				<label class="control-label col-sm-2" for="thumbnail">プロフィール画像</label>
 				<div class="col-sm-10">
-					<img src="/img/noimage.gif" width="150" height="150" class="img-thumbnail img-responsive" alt="プロフィール画像">
+					<% if (user.thumbnail) { %>
+					<img src="/img/<%= user.thumbnail %>" width="150" height="150" class="img-thumbnail" alt="プロフィール画像">
+					<% } else { %>
+					<img src="/img/noimage.gif" width="150" height="150" class="img-thumbnail" alt="プロフィール画像">
+					<% } %>
 				</div>
 			</div>
 			<div class="form-group">
 				<label class="control-label col-sm-2" for="url">URL</label>
 				<div class="col-sm-10">
-					<p class="form-control-static">http://www.sai-chan.com/</p>
+					<p class="form-control-static"><%= user.url %></p>
 				</div>
 			</div>
 			<div class="form-group">
-				<label class="control-label col-sm-2" for="body">自己紹介</label>
+				<label class="control-label col-sm-2" for="introduction">自己紹介</label>
 				<div class="col-sm-10">
-					<p class="form-control-static">ああああああああああああああああああああああああああああああああああああああああああああああああああああああ</p>
+					<p class="form-control-static"><%= user.introduction %></p>
 				</div>
 			</div>
 		</form>
@@ -39,11 +43,15 @@
 	</div>
 	<div class="panel-body">
 		<div class="row">
-		<% for(var i=0; i<4; i++) { %>
+		<% for(var i=0; i<doujinshi.length; i++) { %>
 			<div class="col-md-3">
-				<img src="/img/noimage.gif" class="img-thumbnail">
-				<h3><a href="/doujin/i/<%= '1' %>"><%= 'title' %></a></h3>
-				<p><%= 'author' %></p>
+				<% if (doujinshi[i].thumbnail) { %>
+					<img src="/img/<%= doujinshi[i].thumbnail %>" class="img-thumbnail">
+				<% } else { %>
+					<img src="/img/noimage.gif" class="img-thumbnail">
+				<% } %>
+				<h3><a href="/doujin/i/<%= doujinshi[i].id %>"><%= doujinshi[i].title %></a></h3>
+				<p><%= doujinshi[i].author %></p>
 			</div>
 		<% } %>
 		</div>
