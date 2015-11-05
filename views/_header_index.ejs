@@ -26,7 +26,12 @@
 					プロフィール
 				</div>
 				<div class="panel-body">
-					さい<br />
+					<% if (mydata.profile.thumbnail) { %>
+					<img src="/img/<%= mydata.profile.thumbnail %>" width="72" height="72" class="img-thumbnail" alt="プロフィール画像">
+					<% } else { %>
+					<img src="/img/noimage.gif" width="72" height="72" class="img-thumbnail" alt="プロフィール画像">
+					<% } %>
+					<%= mydata.profile.displayname %>
 					<div class="text-right">
 						<small><a href="/user/edit_top">プロフィールを編集</a></small>
 					</div>
@@ -37,7 +42,7 @@
 					あなたの投稿件数
 				</div>
 				<div class="panel-body">
-					138件
+					<%= mydata.impression_num %>件
 				</div>
 			</div>
 			<% } %>
@@ -47,7 +52,9 @@
 				</div>
 				<table class="table table-hover">
 					<tbody>
+						<% if(isAuthenticated) { %>
 						<tr><td><a href="/doujin/register_top">感想を登録する</td></tr>
+						<% } %>
 						<tr><td><a href="/doujin/list">同人小説一覧</a></td></tr>
 						<tr><td><a href="/impression/list">感想一覧</a></td></tr>
 					</tbody>

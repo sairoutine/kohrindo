@@ -4,7 +4,6 @@
 	<div class="container">
 		<h1>香霖堂書店</h1>
 		<p>香霖堂書店は東方Projectの二次創作小説の感想を投稿するためのサイトです。</p>
-		<!--<p><small>現在の感想数：<%= impression_num %></small></p>-->
 		<p><a class="btn btn-info btn-lg" href="/auth/twitter" role="button">
 				<span class="glyphicon glyphicon-log-in">　</span>
 				Twitterでログイン
@@ -29,27 +28,33 @@
 	</div>
 	<div class="panel-body">
 		<ul class="media-list">
-		<% for(var i=0; i<5; i++) { %>
+		<% impression.forEach(function(row) { %>
 		<li class="media">
 			<div class="media-left media-middle">
-				<a href="/doujin/i/1"><img src="/img/noimage.gif" class="media-object img-thumbnail" alt="test"></a>
+				<a href="/doujin/i/<%= row.doujinshi.id %>">
+				<% if(row.doujinshi.thumbnail) { %>
+				<img src="/img/<%= row.doujinshi.thumbnail %>" class="media-object img-thumbnail" alt="表紙画像">
+				<% } else { %>
+				<img src="/img/noimage.gif" class="media-object img-thumbnail" alt="表紙画像">
+				<% } %>
+				</a>
 			</div>
 			<div class="media-body">
 				<div class="media-head">
 					<div class="row">
 						<div class="col-md-6">
-							<strong><a href="/doujin/i/1">書籍名</a></strong><br />
+							作品名：<strong><a href="/doujin/i/<%= row.doujinshi.id %>"><%= row.doujinshi.title %></a></strong><br />
 						</div>
 						<div class="col-md-6">
-							著者
+							著者：<%= row.doujinshi.author %>
 						</div>
 					</div>
 				</div>
-				あああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ
+				<%= row.body %>
 			</div>
 		</li>
 		<hr />
-		<% } %>
+		<% }); %>
 		</ul>
 		<p class="text-right"><a href="/impression/list">もっと見る</a></p>
 	</div>
