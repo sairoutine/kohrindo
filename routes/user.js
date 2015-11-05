@@ -7,43 +7,7 @@ var upload = multer({ dest: '../tmp/images/'});
 
 var fs = require('fs');
 
-/* ユーザーの一覧 */
-/*
-router.get('/list/:id', function(req, res, next) {
- 	// viewに渡すパラメータ
-	var data = {};
-
-	// 認証しているか否か
-	data.isAuthenticated = req.isAuthenticated();
-
-	DB.select('*');
-	DB.get('user', function (err, rows, fields) {
-		data.list = rows;
-		res.render('user/list', data);
-	});
-});
-*/
-/* マイページ */
-/*
-router.get('/mypage', function(req, res, next) {
-	var data ={};
-
-	if(!req.isAuthenticated()) {
-	   res.redirect(BASE_PATH);
-	}
-	console.log(req.user);
-
-	DB.select('*');
-	DB.where('id', req.user);
-	DB.get('user', function (err, rows, fields) {
-		data.user = rows[0];
-		res.render('user/mypage', data);
-	});
-
-});
-*/
-
-
+/* TODO: ユーザーの一覧 */
 
 /* ユーザーのプロフィール編集ページ */
 router.get('/edit_top', function(req, res, next) {
