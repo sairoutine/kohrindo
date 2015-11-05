@@ -20,12 +20,14 @@ CREATE TABLE `doujinshi` (
 CREATE TABLE `impression` (
   `id`           int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
   `doujinshi_id` int(10) unsigned NOT NULL                COMMENT '同人誌ID',
-  `body`         text             NOT NULL                COMMENT '感想',
+  `user_id`      int(10) unsigned NOT NULL                COMMENT '投稿したユーザーID',
+  `body`         text             NOT NULL                COMMENT '感想本文',
   `create_time`  datetime         NOT NULL                COMMENT '作成日時',
   `update_time`  datetime         NOT NULL                COMMENT '更新日時',
   `delete_time`  datetime                  DEFAULT NULL   COMMENT '削除日時',
   PRIMARY KEY (`id`),
-  KEY `i1` (`doujinshi_id`)
+  KEY `i1` (`doujinshi_id`),
+  KEY `i2` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='感想の一覧';
 
 
