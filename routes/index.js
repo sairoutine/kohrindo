@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
+var knex = require('../lib/knex');
 /* indexページ */
 router.get('/', function(req, res, next) {
 	/* 1ページに表示する感想件数 */

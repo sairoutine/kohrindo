@@ -2,6 +2,7 @@
 var express = require('express');
 var router = express.Router();
 
+var knex = require('../lib/knex');
 /* 検索 */
 router.get('/', function(req, res, next) {
  	/* viewに渡すパラメータ */

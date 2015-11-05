@@ -2,6 +2,7 @@
 var express = require('express');
 var router = express.Router();
 
+var knex = require('../lib/knex');
 /* 感想一覧 */
 router.get('/list', function(req, res, next) {
 	/* 1ページに表示する感想件数 */

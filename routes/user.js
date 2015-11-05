@@ -7,6 +7,7 @@ var upload = multer({ dest: '../tmp/images/'});
 
 var fs = require('fs');
 
+var knex = require('../lib/knex');
 /* TODO: ユーザーの一覧 */
 
 /* ユーザーのプロフィール編集ページ */

@@ -7,6 +7,7 @@ var upload = multer({ dest: '../tmp/images/'});
 
 var fs = require('fs');
 
+var knex = require('../lib/knex');
 /* 同人誌の一覧 */
 /* :id ページング用 */
 router.get('/list', function(req, res, next) {

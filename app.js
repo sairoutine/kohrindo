@@ -19,6 +19,7 @@ var MemcachedStore = require('connect-memcached')(session);
 var passport = require('passport');
 var TwitterStrategy = require('passport-twitter').Strategy;
 
+var knex = require('./lib/knex');
 /* Config を読み込む */
 var conf = require('config');
 
@@ -38,20 +39,6 @@ app.use(cookieParser());
 // 静的ファイルを置く場所
 app.use(express.static(path.join(__dirname, 'public')));
 
-// MySQLに接続
-knex = require('knex')({
-	client: 'mysql',
-	connection: {
-		host     : '127.0.0.1',
-		user     : 'root',
-		password : '',
-		database : 'doujinshi'
-	},
- 	pool: {
-		min: 1,
-		max: 10
-	}
-});
 
 BASE_PATH = 'http://sai-chan.com:3500/';
 
