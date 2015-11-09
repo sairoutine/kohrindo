@@ -8,6 +8,9 @@ var upload = multer({ dest: '../tmp/images/'});
 var fs = require('fs');
 
 var knex = require('../lib/knex');
+
+var external_doujin_info = require('../lib/external_doujin_info');
+
 /* 同人誌の一覧 */
 /* :id ページング用 */
 router.get('/list', function(req, res, next) {
@@ -18,9 +21,6 @@ router.get('/list', function(req, res, next) {
 
  	/* viewに渡すパラメータ */
 	var data = {};
-
-	/* 認証しているか否か */
-	data.isAuthenticated = req.isAuthenticated();
 
 	/* 同人誌の感想一覧を取得 */
 	knex.select('id', 'title', 'author', 'thumbnail')
@@ -81,9 +81,6 @@ router.get('/i/:id', function(req, res, next) {
 		impression: []
 	};
 
-	/* 認証しているか否か */
-	data.isAuthenticated = req.isAuthenticated();
-
 	/* 同人誌情報 */
 	knex.select(['title', 'author', 'circle', 'url', 'thumbnail'])
 	.from('doujinshi')
@@ -136,13 +133,18 @@ router.get('/i/:id', function(req, res, next) {
 	.then(function(user_rows) {
 		/* user_id -> displayname の連想配列を作成 */
 		var user_id_displayname_hash = {};
+		/* user_id -> thumbnail の連想配列を作成 */
+		var user_id_thumbnail_hash = {};
+
 		user_rows.forEach(function(row) {
 			user_id_displayname_hash[row.id] = row.displayname;
+			user_id_thumbnail_hash[row.id]   = row.thumbnail;
 		});
 
-		/* impression_rows に displayname を追加 */
+		/* impression_rows に displayname と thumbnail を追加 */
 		for(var i=0; i<data.impression.length; i++) {
 			data.impression[i].displayname = user_id_displayname_hash[data.impression[i].user_id];
+			data.impression[i].thumbnail   = user_id_thumbnail_hash[data.impression[i].thumbnail];
 		}
 
 		return knex.count('* as impression_num')
@@ -377,32 +379,152 @@ router.post('/register_by_user', upload.single('cover_image'), function(req, res
 			'url': url,
 			'thumbnail': thumbnail,
 			'cover_image': cover_image,
+			/* どこから登録されたか */
+			'register_by': 'user',
 			'create_time': now,
 			'update_time': now
 	})
 	.then(function(doujinshi_id) {
-		knex('impression').insert({
-				'doujinshi_id': doujinshi_id,
-				'user_id': req.user,
-				'body': body,
-				'create_time': now,
-				'update_time': now
-		})
-		.then(function(impression_id) {
-			res.redirect(BASE_PATH + 'impression/i/' + impression_id);
-		})
-		.catch(function(err) {
-			next(new Error(err));
-		});
+		res.redirect(BASE_PATH + 'doujin/i/' + doujinshi_id);
 	})
 	.catch(function(err) {
 		next(new Error(err));
 	});
 });
 
-/* クーリエから同人誌登録 */
-router.get('/register_by_coolier', function(req, res, next) {
-	res.redirect(BASE_PATH + 'doujin/list/');
+/* 東方創想話から同人誌登録 */
+router.post('/register_by_coolier', function(req, res, next) {
+	/* 認証処理 */
+	if(!req.isAuthenticated()) {
+	   res.redirect(BASE_PATH);
+	}
+
+	/* 入力値 */
+	var url         = req.body.url;
+
+	/* TODO:入力値チェック */
+	if(!external_doujin_info.is_coolier_url(url)){
+		return;
+	}
+
+	require('date-utils');
+
+	var dt = new Date();
+	var now = dt.toFormat("YYYY-MM-DD HH24:MI:SS");
+
+	/* 作品の登録 */
+	external_doujin_info
+	.get_by_coolier(url)
+	.then(function(data) {
+		return knex('doujinshi').insert({
+			'title': data.title,
+			'author': data.author,
+			'circle': data.circle,
+			'url': data.url,
+			'thumbnail': data.thumbnail,
+			'cover_image': data.cover_image,
+			/* どこから登録されたか */
+			'register_by': 'coolier',
+			'create_time': now,
+			'update_time': now
+		});
+	})
+	.then(function(doujinshi_id) {
+		res.redirect(BASE_PATH + 'doujin/i/' + doujinshi_id);
+	})
+	.catch(function(err) {
+		next(new Error(err));
+	});
+});
+
+/* メロンブックスから同人誌登録 */
+router.post('/register_by_melonbooks', function(req, res, next) {
+	/* 認証処理 */
+	if(!req.isAuthenticated()) {
+	   res.redirect(BASE_PATH);
+	}
+
+	/* 入力値 */
+	var url         = req.body.url;
+
+	/* TODO:入力値チェック */
+	if(!external_doujin_info.is_melonbooks_url(url)){
+		return;
+	}
+
+	require('date-utils');
+
+	var dt = new Date();
+	var now = dt.toFormat("YYYY-MM-DD HH24:MI:SS");
+
+	/* 作品の登録 */
+	external_doujin_info
+	.get_by_melonbooks(url)
+	.then(function(data) {
+		return knex('doujinshi').insert({
+			'title': data.title,
+			'author': data.author,
+			'circle': data.circle,
+			'url': data.url,
+			'thumbnail': data.thumbnail,
+			'cover_image': data.cover_image,
+			/* どこから登録されたか */
+			'register_by': 'melonbooks',
+			'create_time': now,
+			'update_time': now
+		});
+	})
+	.then(function(doujinshi_id) {
+		res.redirect(BASE_PATH + 'doujin/i/' + doujinshi_id);
+	})
+	.catch(function(err) {
+		next(new Error(err));
+	});
+});
+
+/* pixiv小説から同人誌登録 */
+router.post('/register_by_pixiv', function(req, res, next) {
+	/* 認証処理 */
+	if(!req.isAuthenticated()) {
+	   res.redirect(BASE_PATH);
+	}
+
+	/* 入力値 */
+	var url         = req.body.url;
+
+	/* TODO:入力値チェック */
+	if(!external_doujin_info.is_pixiv_url(url)){
+		return;
+	}
+
+	require('date-utils');
+
+	var dt = new Date();
+	var now = dt.toFormat("YYYY-MM-DD HH24:MI:SS");
+
+	/* 作品の登録 */
+	external_doujin_info
+	.get_by_pixiv(url)
+	.then(function(data) {
+		return knex('doujinshi').insert({
+			'title': data.title,
+			'author': data.author,
+			'circle': data.circle,
+			'url': data.url,
+			'thumbnail': data.thumbnail,
+			'cover_image': data.cover_image,
+			/* どこから登録されたか */
+			'register_by': 'pixiv',
+			'create_time': now,
+			'update_time': now
+		});
+	})
+	.then(function(doujinshi_id) {
+		res.redirect(BASE_PATH + 'doujin/i/' + doujinshi_id);
+	})
+	.catch(function(err) {
+		next(new Error(err));
+	});
 });
 
 module.exports = router;

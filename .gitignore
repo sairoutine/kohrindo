@@ -1,4 +1,6 @@
 node_modules
-log
+log/*
 public/img/user
-public/img/doujin
+public/img/doujin/[0-9]*.gif
+public/img/doujin/[0-9]*.png
+public/img/doujin/[0-9]*.jpg

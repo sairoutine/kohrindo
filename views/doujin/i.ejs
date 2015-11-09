@@ -67,19 +67,24 @@
 		<hr />
 
 		<% impression.forEach(function(row){ %>
-			<div class="row">
-				<div class="col-md-12 text-left">
-					<a href="/user/i/<%= row.user_id %>"><%= row.displayname %></a>
-				</div>
+		<div class="media">
+			<div class="media-left media-middle">
+				<% if(row.thumbnail) { %>
+				<img src="/img/<%= row.thumbnail %>" width="72" height="72" class="media-object img-thumbnail" alt="プロフィール画像">
+				<% } else { %>
+				<img src="/img/noimage.gif" width="72" height="72" class="media-object img-thumbnail" alt="プロフィール画像">
+				<% } %>
 			</div>
-			<div class="row">
-				<div class="col-md-12">
-					<%= row.body %>
+			<div class="media-body">
+				<div class="row">
+					<div class="col-md-12 text-left">
+						<a href="/user/i/<%= row.user_id %>"><%= row.displayname %></a>
+					</div>
 				</div>
-			</div>
-			<div class="row">
-				<div class="col-md-12 text-right">
-					<%= row.create_time %>
+				<div class="row">
+					<div class="col-md-12">
+						<pre class="well"><%= row.body %></pre>
+					</div>
 				</div>
 			</div>
 			<hr />
