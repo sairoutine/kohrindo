@@ -15,7 +15,7 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var session = require('express-session');
-var MemcachedStore = require('connect-memcached')(session);
+var RedisStore = require('connect-redis')(session);
 var passport = require('passport');
 var TwitterStrategy = require('passport-twitter').Strategy;
 
@@ -123,10 +123,14 @@ passport.deserializeUser(function(user_id, done) {
 
 
 app.use(session({
+	/* 環境変数から取得する */
 	secret: "hogesecret",
 	key: 'sid',
 	cookie: {maxAge: 1000 * 60 * 60 * 24 * 7}, // 1week
-	store: new MemcachedStore({hosts: ['localhost:11211']})
+	store: new RedisStore({
+		host: 'localhost',
+		port: 6379,
+	})
 }));
 app.use(passport.initialize()); // passportの初期化処理
 app.use(passport.session()); // passportのsessionを設定(中身はしらぬ)
