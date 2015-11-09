@@ -11,6 +11,7 @@ CREATE TABLE `doujinshi` (
   `url`         varchar(255)              DEFAULT NULL   COMMENT '詳細URL',
   `thumbnail`   varchar(255)              DEFAULT NULL   COMMENT '表紙画像のサムネイルパス',
   `cover_image` varchar(255)              DEFAULT NULL   COMMENT '表紙画像のパス',
+  `register_by` varchar(255)     NOT NULL                COMMENT '登録元(coolier, pixiv, melonbooks, user etc..)', 
   `create_time` datetime         NOT NULL                COMMENT '作成日時',
   `update_time` datetime         NOT NULL                COMMENT '更新日時',
   `delete_time` datetime                  DEFAULT NULL   COMMENT '削除日時',
