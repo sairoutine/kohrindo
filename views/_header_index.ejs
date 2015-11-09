@@ -1,73 +1,24 @@
 <div class="container">
 	<div class="row">
-		<div class="col-md-12 text-center">
-			<div class="panel panel-default">
-				<div class="panel-heading text-left">
-					検索
+	<div class="col-md-12 text-center">
+		<div class="panel panel-default">
+			<div class="panel-heading text-left">
+				検索
+			</div>
+			<div class="panel-body">
+				<form action="/search" method="GET">
+				<div class="input-group input-group-lg">
+					<span class="input-group-addon"><span class="glyphicon glyphicon-search"></span></span>
+					<input type="text" name="query" class="form-control" placeholder="本のタイトル名・著者名で検索">
+					<span class="input-group-btn">
+						<input type="submit" class="btn btn-success" value="検索">
+					</span>
 				</div>
-				<div class="panel-body">
-					<form action="/search" method="GET">
-							<div class="input-group input-group-lg">
-								<input type="text" name="query" class="form-control" placeholder="本のタイトル名・著者名で検索">
-								<span class="input-group-btn">
-									<input type="submit" class="btn btn-success" value="検索">
-								</span>
-							</div>
-					</form>
-				</div>
+				</form>
 			</div>
 		</div>
 	</div>
+	</div>
 	<div class="row">
-		<div class="col-md-3">
-			<% if (isAuthenticated) { %>
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					プロフィール
-				</div>
-				<div class="panel-body">
-					<% if (mydata.profile.thumbnail) { %>
-					<img src="/img/<%= mydata.profile.thumbnail %>" width="72" height="72" class="img-thumbnail" alt="プロフィール画像">
-					<% } else { %>
-					<img src="/img/noimage.gif" width="72" height="72" class="img-thumbnail" alt="プロフィール画像">
-					<% } %>
-					<%= mydata.profile.displayname %>
-					<div class="text-right">
-						<small><a href="/user/edit_top">プロフィールを編集</a></small>
-					</div>
-				</div>
-			</div>
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					あなたの投稿件数
-				</div>
-				<div class="panel-body">
-					<%= mydata.impression_num %>件
-				</div>
-			</div>
-			<% } %>
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					メニュー
-				</div>
-				<table class="table table-hover">
-					<tbody>
-						<% if(isAuthenticated) { %>
-						<tr><td><a href="/doujin/register_top">感想を登録する</td></tr>
-						<% } %>
-						<tr><td><a href="/doujin/list">同人小説一覧</a></td></tr>
-						<tr><td><a href="/impression/list">感想一覧</a></td></tr>
-					</tbody>
-				</table>
-			</div>
-			<% if (!isAuthenticated) { %>
-			<div class="panel panel-default">
-				<div class="panel-body">
-					<a class="twitter-timeline" href="https://twitter.com/sairoutine" data-widget-id="429561508557619200" height="600">@sairoutineさんのツイート</a>
-					<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
-				</div>
-			</div>
-			<% } %>
-		</div>
 		<div class="col-md-9">
 
