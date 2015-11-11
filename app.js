@@ -18,6 +18,9 @@ var session = require('express-session');
 var RedisStore = require('connect-redis')(session);
 var passport = require('passport');
 var TwitterStrategy = require('passport-twitter').Strategy;
+var crypto = require('crypto');
+var request = require('request');
+var fs = require('fs');
 
 var knex = require('./lib/knex');
 /* Config を読み込む */
@@ -53,8 +56,6 @@ passport.use(new TwitterStrategy({
 		consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
 		callbackURL: BASE_PATH + "auth/twitter/callback"
 	}, function(token, tokenSecret, profile, done) {
-		console.log(profile);
-
 		/* ユーザーID */
 		var user_id;
 
@@ -81,13 +82,25 @@ passport.use(new TwitterStrategy({
 				var dt = new Date();
 				var now = dt.toFormat("YYYY-MM-DD HH24:MI:SS");
 
-				/* TODO:profile.profile_image_url をGETして保存 */
+				/* TODO:拡張子はpath.extname から取得する */
+				// 画像保存用に画像IDからsha1値を計算
+				var randam_string = crypto.pseudoRandomBytes(16).toString('hex');
+
+				// 画像パス
+				var thumbnail = 'user/' + randam_string + '.png';
+
+				// 画像を取得して保存
+				request.get(profile._json.profile_image_url)
+				.on('error', function(err) {
+					throw err;
+				})
+				.pipe(fs.createWriteStream('./public/img/' + thumbnail));
 
 				return knex('user').insert({
 					displayname: profile.displayName,
 					introduction: profile._json.description,
 					url: profile._json.url,
-					thumbnail: null,
+					thumbnail: thumbnail,
 					create_time: now,
 					update_time: now
 				})
@@ -131,6 +144,8 @@ passport.deserializeUser(function(user_id, done) {
 app.use(session({
 	/* 環境変数から取得する */
 	secret: "hogesecret",
+	resave: false,
+	saveUninitialized: true,
 	key: 'sid',
 	cookie: {maxAge: 1000 * 60 * 60 * 24 * 7}, // 1week
 	store: new RedisStore({
