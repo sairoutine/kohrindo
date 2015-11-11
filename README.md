@@ -13,6 +13,8 @@ sudo chkconfig mysqld on
 sudo service mysqld start
 # Install node v1.2
 fab root_install_node12 -H localhost
+# Install ImageMagick
+sudo yum install ImageMagick-c++ ImageMagick-c++-devel
 # setup db
 mysql -uroot < ./kohrindo/bin/db_setup.sql
 
