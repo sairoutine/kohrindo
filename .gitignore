@@ -4,3 +4,5 @@ public/img/user
 public/img/doujin/[0-9]*.gif
 public/img/doujin/[0-9]*.png
 public/img/doujin/[0-9]*.jpg
+public/img/doujin/[0-9a-fA-F]*
+public/img/doujin/s_[0-9a-fA-F]*
