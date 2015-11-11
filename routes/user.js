@@ -3,7 +3,17 @@ var express = require('express');
 var router = express.Router();
 var multer = require('multer');
 
-var upload = multer({ dest: '../tmp/images/'});
+var imagemagick = require('imagemagick-native');
+
+var upload = multer({
+	dest: './public/img/user',
+    limits: {
+        fieldNameSize: 50,
+        files: 1,
+        fields: 5,
+        fileSize: 50 * 1024 * 1024 // Max 50MB
+    },
+});
 
 var fs = require('fs');
 
@@ -45,48 +55,44 @@ router.post('/edit', upload.single('thumbnail'), function(req, res, next) {
 	}
 
 	/* 入力値 */
-	var displayname = req.body.displayname;
-	var url         = req.body.url;
-	var introduction= req.body.introduction;
+	var update_data = {
+		displayname:  req.body.displayname,
+		url:          req.body.url,
+		introduction: req.body.introduction,
+	};
 
 	/* 入力に誤りがあるときに呼び出す関数 */
 	var input_error = function(error_message) {
 	 	/* viewに渡すパラメータ */
 		var data = {
-			'displayname': displayname,
-			'url': url,
-			'introduction': introduction,
+			'displayname':  update_data.displayname,
+			'url':          update_data.url,
+			'introduction': update_data.introduction,
 			'error_message': error_message,
-			isAuthenticated: req.isAuthenticated()
 		};
 		res.render('user/edit_top', data);
 	};
 
 	/* 入力値チェック */
-	if(req.body.displayname.length === 0){
+	if(update_data.displayname.length === 0){
 		input_error('ニックネームが入力されていません。');
 		return;
 	}
 
-	var thumbnail = 'noimage.gif';
+	/* ユーザー画像の変更があれば */
 	if(req.file){
-		var target_path, tmp_path;
-		tmp_path = req.file.path;
+		var thumbnail_name = req.file.filename;
 
-		// 拡張子なんとかしなくちゃ
-		target_path = './public/img/user/' + req.user + '.gif';
-		fs.rename(tmp_path, target_path, function(err) {
-			if (err) {
-				throw err;
-			}
-			fs.unlink(tmp_path, function() {
-				if (err) {
-					throw err;
-				}
-			});
-		});
+		// Stream処理にしたい……
+		/* 画像を縮小 */
+		fs.writeFileSync('./public/img/user/' + thumbnail_name, imagemagick.convert({
+			srcData: fs.readFileSync(req.file.path),
+			width: 150,
+			height: 150,
+			resizeStyle: 'aspectfit',
+		}));
 
-		thumbnail = 'user/' + req.user + '.gif';
+		update_data.thumbnail = 'user/' + thumbnail_name;
 	}
 
 	require('date-utils');
@@ -96,13 +102,7 @@ router.post('/edit', upload.single('thumbnail'), function(req, res, next) {
 
 	knex('user')
 	.where('id', req.user)
-	.update({
-		'displayname': displayname,
-		'thumbnail': thumbnail,
-		'url': url,
-		'introduction': introduction,
-		'update_time': now
-	})
+	.update(update_data)
 	.then(function(rows) {
 		res.redirect(BASE_PATH + 'user/edit_top');
 	})

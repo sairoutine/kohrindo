@@ -7,9 +7,9 @@
 				</div>
 				<div class="panel-body">
 					<% if (mydata.profile.thumbnail) { %>
-					<img src="/img/<%= mydata.profile.thumbnail %>" width="72" height="72" class="img-thumbnail" alt="プロフィール画像">
+					<img src="/img/<%= mydata.profile.thumbnail %>" width="48" height="48" class="img-thumbnail" alt="プロフィール画像">
 					<% } else { %>
-					<img src="/img/noimage.gif" width="72" height="72" class="img-thumbnail" alt="プロフィール画像">
+					<img src="/img/noimage.gif" width="48" height="48" class="img-thumbnail" alt="プロフィール画像">
 					<% } %>
 					<%= mydata.profile.displayname %>
 					<div class="text-right">

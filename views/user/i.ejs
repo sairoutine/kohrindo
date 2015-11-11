@@ -16,9 +16,9 @@
 				<label class="control-label col-sm-2" for="thumbnail">プロフィール画像</label>
 				<div class="col-sm-10">
 					<% if (user.thumbnail) { %>
-					<img src="/img/<%= user.thumbnail %>" width="150" height="150" class="img-thumbnail" alt="プロフィール画像">
+					<img src="/img/<%= user.thumbnail %>" width="48" height="48" class="img-thumbnail" alt="プロフィール画像">
 					<% } else { %>
-					<img src="/img/noimage.gif" width="150" height="150" class="img-thumbnail" alt="プロフィール画像">
+					<img src="/img/noimage.gif" width="48" height="48" class="img-thumbnail" alt="プロフィール画像">
 					<% } %>
 				</div>
 			</div>
