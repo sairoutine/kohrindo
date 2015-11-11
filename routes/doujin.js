@@ -3,8 +3,17 @@ var express = require('express');
 var router = express.Router();
 var multer = require('multer');
 
-var upload = multer({ dest: '../tmp/images/'});
+var imagemagick = require('imagemagick-native');
 
+var upload = multer({
+	dest: './public/img/doujin',
+    limits: {
+        fieldNameSize: 50,
+        files: 1,
+        fields: 5,
+        fileSize: 50 * 1024 * 1024
+    },
+});
 var fs = require('fs');
 
 var knex = require('../lib/knex');
@@ -126,7 +135,7 @@ router.get('/i/:id', function(req, res, next) {
 		});
 
 		/* 感想一覧のユーザー名を取得 */
-		return knex.select('id', 'displayname')
+		return knex.select('id', 'thumbnail', 'displayname')
 		.from('user')
 		.whereIn('id', user_ids);
 	})
@@ -144,7 +153,7 @@ router.get('/i/:id', function(req, res, next) {
 		/* impression_rows に displayname と thumbnail を追加 */
 		for(var i=0; i<data.impression.length; i++) {
 			data.impression[i].displayname = user_id_displayname_hash[data.impression[i].user_id];
-			data.impression[i].thumbnail   = user_id_thumbnail_hash[data.impression[i].thumbnail];
+			data.impression[i].thumbnail   = user_id_thumbnail_hash[data.impression[i].user_id];
 		}
 
 		return knex.count('* as impression_num')
@@ -212,55 +221,41 @@ router.post('/edit', upload.single('cover_image'), function(req, res, next) {
 	}
 
 	/* 入力値 */
-	var id          = req.body.id;
-	var title       = req.body.title;
-	var author      = req.body.author;
-	var circle      = req.body.circle;
-	var url         = req.body.url;
-	var body        = req.body.body;
+	var id = req.body.id;
+	var update_data = {
+		title:  req.body.title,
+		author: req.body.author,
+		circle: req.body.circle,
+		url:    req.body.url,
+	};
 
 	/* 入力に誤りがあるときに呼び出す関数 */
 	var input_error = function(error_message) {
 	 	/* viewに渡すパラメータ */
-		var data = {
-			'id': id,
-			'title': title,
-			'author': author,
-			'circle': circle,
-			'url': url,
-			'body': body,
-			isAuthenticated: req.isAuthenticated()
-		};
+		var data = update_data;
 		res.render('user/edit_top', data);
 	};
 
 	/* 入力値チェック */
-	if(title.length === 0){
+	if(update_data.title.length === 0){
 		input_error('タイトルが入力されていません。');
 		return;
 	}
 
-	var thumbnail = 'noimage.gif';
-	var cover_image = 'noimage.gif';
+	/* 表紙画像の変更があれば */
 	if(req.file){
-		var target_path, tmp_path;
-		tmp_path = req.file.path;
+		var thumbnail_name = 's_' + req.file.filename;
 
-		// 拡張子なんとかしなくちゃ
-		target_path = './public/img/doujin/' + req.user + '.gif';
-		fs.rename(tmp_path, target_path, function(err) {
-			if (err) {
-				throw err;
-			}
-			fs.unlink(tmp_path, function() {
-				if (err) {
-					throw err;
-				}
-			});
-		});
+		/* 画像を縮小 */
+		fs.writeFileSync('./public/img/doujin/' + thumbnail_name, imagemagick.convert({
+			srcData: fs.readFileSync(req.file.path),
+			width: 150,
+			height: 150,
+			resizeStyle: 'aspectfit',
+		}));
 
-		thumbnail   = 'doujin/' + req.user + '.gif';
-		cover_image = 'doujin/' + req.user + '.gif';
+		update_data.thumbnail = 'doujin/' + thumbnail_name;
+		update_data.cover_image = 'doujin/' + req.file.filename;
 	}
 
 	require('date-utils');
@@ -269,15 +264,7 @@ router.post('/edit', upload.single('cover_image'), function(req, res, next) {
 	var now = dt.toFormat("YYYY-MM-DD HH24:MI:SS");
 
 	/* 作品の登録 */
-	knex('doujinshi').update({
-			'title': title,
-			'author': author,
-			'circle': circle,
-			'url': url,
-			'thumbnail': thumbnail,
-			'cover_image': cover_image,
-			'update_time': now
-	})
+	knex('doujinshi').update(update_data)
 	.where('id', id)
 	.then(function(doujinshi_id) {
 		res.redirect(BASE_PATH + 'doujin/i/' + id);
@@ -343,27 +330,22 @@ router.post('/register_by_user', upload.single('cover_image'), function(req, res
 		return;
 	}
 
-	var thumbnail = 'noimage.gif';
-	var cover_image = 'noimage.gif';
+	var thumbnail = '';
+	var cover_image = '';
+	/* ユーザー画像の変更があれば */
 	if(req.file){
-		var target_path, tmp_path;
-		tmp_path = req.file.path;
+		var thumbnail_name = 's_' + req.file.filename;
 
-		// 拡張子なんとかしなくちゃ
-		target_path = './public/img/doujin/' + req.user + '.gif';
-		fs.rename(tmp_path, target_path, function(err) {
-			if (err) {
-				throw err;
-			}
-			fs.unlink(tmp_path, function() {
-				if (err) {
-					throw err;
-				}
-			});
-		});
+		/* 画像を縮小 */
+		fs.writeFileSync('./public/img/doujin/' + thumbnail_name, imagemagick.convert({
+			srcData: fs.readFileSync(req.file.path),
+			width: 150,
+			height: 150,
+			resizeStyle: 'aspectfit',
+		}));
 
-		thumbnail   = 'doujin/' + req.user + '.gif';
-		cover_image = 'doujin/' + req.user + '.gif';
+		cover_image = 'doujin/' + req.file.filename;
+		thumbnail   = 'doujin/' + thumbnail_name;
 	}
 
 	require('date-utils');
