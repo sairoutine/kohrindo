@@ -1,22 +1,69 @@
 var doujin_info = require('../lib/external_doujin_info');
 
 process.chdir('/home/kohrindo/kohrindo');
+var knex = require('../lib/knex');
 
-doujin_info.get_list_by_surugaya('http://www.suruga-ya.jp/search?category=&search_word=%E6%9D%B1%E6%96%B9+%E5%B0%8F%E8%AA%AC&adult_s=1&rankBy=release_date(int)%3Adescending')
-.then(function (urls) {
-	for(var i=0; i<urls.length; i++) {
-		var url = urls[i];
-		doujin_info.get_by_surugaya(url)
-		.then(function(data) {
-			console.log('タイトル:' + data.title);
-			console.log('著者:' + data.author);
-			console.log('サークル:' + data.circle);
-			console.log('URL:' + data.url);
-			console.log('サムネ' + data.thumbnail);
-			console.log('カバー' + data.cover_image);
+// 商品リストのURL一覧
+var list_urls = [];
+for(var i=113;i>0;i--) {
+	list_urls.push('http://www.suruga-ya.jp/search?category=&search_word=%E6%9D%B1%E6%96%B9+%E5%B0%8F%E8%AA%AC&adult_s=2&inStock=On&page=' + i + '&rankBy=release_date%28int%29%3Adescending&restrict[]=adult%20s(bool)=false');
+}
+
+// 個別の商品ページ一覧
+var all_product_urls = [];
+
+console.log('[BEGIN]個別の商品ページ一覧取得');
+
+list_urls.reduce(function(promise, list_url) {
+	return promise.then(function() {
+		return doujin_info.get_list_by_surugaya(list_url)
+		.then(function(product_urls){
+			return new Promise(function(resolve, reject){
+				Array.prototype.push.apply(all_product_urls, product_urls);
+				resolve();
+			});
 		})
-		.catch(function(err){ console.log(err) });
+		.catch(function(err) {
+			console.log(err);
+		});
+	});
+}, Promise.resolve())
+.then(function() {
+	console.log('[ END ]個別の商品ページ一覧取得');
 
-	}
+	// 商品個別ページのデータを取得してDBに保存する。
+	var get_detail_promises = all_product_urls.reduce(function(promise, url) {
+		return promise.then(function() {
+			return doujin_info.get_by_surugaya(url)
+			.then(function(data) {
+
+				console.log('[DONE ]' + url);
+
+				data.register_by = 'surugaya';
+
+				require('date-utils');
+				var dt = new Date();
+				var now = dt.toFormat("YYYY-MM-DD HH24:MI:SS");
+				data.create_time = now;
+				data.update_time = now;
+
+				return knex('doujinshi').insert(data);
+			})
+			.catch(function(err) {
+				console.log(err);
+			});
+		});
+	}, Promise.resolve());
+
+	return get_detail_promises;
+})
+.then(function (get_detail_promises) {
+	// すべての商品個別ページの取得が完了
+	console.log('done');
+	knex.disconnect();
+	process.exit();
+})
+.catch(function(err){
+	console.log(err);
+	process.exit();
 });
-
