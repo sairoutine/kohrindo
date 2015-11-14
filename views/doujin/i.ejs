@@ -44,26 +44,34 @@
 		この作品の感想
 	</div>
 	<div class="panel-body">
-		<% if(my_impression.id) { %>
-		<form action="/impression/edit" method="post" role="form">
-		<% } else { %>
-		<form action="/impression/register" method="post" role="form">
-		<% } %>
-			<input type="hidden" name="id" value="<%= id %>">
-			<input type="hidden" name="impression_id" value="<%= my_impression.id %>">
-			<div class="form-group">
-				<label for="body" class="sr-only">感想を投稿</label>
-				<textarea name="body" class="form-control" rows="5" placeholder="感想を投稿する"><%= my_impression.body %></textarea><br />
-				<div class="text-right">
+		<% if(isAuthenticated) { %>
+			<% if(my_impression.id) { %>
+			<form action="/impression/edit" method="post" role="form">
+			<% } else { %>
+			<form action="/impression/register" method="post" role="form">
+			<% } %>
+				<input type="hidden" name="id" value="<%= id %>">
+				<input type="hidden" name="impression_id" value="<%= my_impression.id %>">
+				<div class="form-group">
+					<label for="body" class="sr-only">感想を投稿</label>
+					<textarea name="body" class="form-control" rows="5" placeholder="感想を投稿する"><%= my_impression.body %></textarea><br />
+					<div class="text-right">
 
-					<% if(my_impression.id) { %>
-					<button type="submit" class="btn btn-success">修正</button>
-					<% } else { %>
-					<button type="submit" class="btn btn-success">感想を投稿</button>
-					<% } %>
+						<% if(my_impression.id) { %>
+						<button type="submit" class="btn btn-success">修正</button>
+						<% } else { %>
+						<button type="submit" class="btn btn-success">感想を投稿</button>
+						<% } %>
+					</div>
 				</div>
-			</div>
-		</form>
+			</form>
+		<% } else { %>
+			<h2 class="text-center">ログインすると感想を投稿することができます</h2>
+			<p class="text-center"><a class="btn btn-info btn-lg" href="/auth/twitter" role="button">
+					<span class="glyphicon glyphicon-log-in">　</span>
+					Twitterでログイン
+			</a></p>
+		<% } %>
 		<hr />
 
 		<% impression.forEach(function(row){ %>
