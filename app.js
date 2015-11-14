@@ -207,29 +207,18 @@ app.use(function (req, res, next) {
     next();
 });
 
-// indexページ
-var routes      = require('./routes/index');
-app.use('/', routes);
+// routes ディレクトリ以下のjsをルーティング
+fs.readdirSync('./routes')
+.filter(function(file){
+	return /.*\.js$/.test(file);
+})
+.forEach(function (file) {
+	var basename = path.basename(file, '.js');
+	var require_file = './' + path.join('./routes', basename);
 
-// 同人誌一覧
-var doujin      = require('./routes/doujin');
-app.use('/doujin', doujin);
-
-// 感想一覧
-var impression  = require('./routes/impression');
-app.use('/impression', impression);
-
-// ユーザーページ・マイページ・ユーザー一覧
-var user = require('./routes/user');
-app.use('/user', user);
-
-// ヘルプ
-var help = require('./routes/help');
-app.use('/help', help);
-
-// 検索
-var search = require('./routes/search');
-app.use('/search', search);
+	var route = basename === 'index' ? '/' : '/' + basename;
+	app.use(route, require(require_file));
+});
 
 // ツイッター認証ページ
 app.get("/auth/twitter", passport.authenticate('twitter'));
