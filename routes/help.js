@@ -2,16 +2,10 @@
 var express = require('express');
 var router = express.Router();
 
-var knex = require('../lib/knex');
-/* 同人誌の一覧 */
-router.get('/', function(req, res, next) {
- 	/* viewに渡すパラメータ */
-	var data = {};
+var HelpController = require('../controller/help');
+var help = new HelpController();
 
-	/* 認証しているか否か */
-	data.isAuthenticated = req.isAuthenticated();
-
-	res.render('help/index', data);
-});
+/* ヘルプ */
+router.get('/', help.index);
 
 module.exports = router;
