@@ -151,12 +151,14 @@ app.use(session({
 	store: new RedisStore({
 		host: 'localhost',
 		port: 6379,
+		prefix: 'kohrindo:session:'
 	})
 }));
 app.use(passport.initialize()); // passportの初期化処理
 app.use(passport.session()); // passportのsessionを設定(中身はしらぬ)
 // -- 追加ココまで --
 
+var RedisModel = require('./model/redis');
 // テンプレに渡す共通変数はここで定義する。
 app.use(function (req, res, next) {
 	// SUPER::render
@@ -174,7 +176,7 @@ app.use(function (req, res, next) {
 		options.mydata = {};
 
 		/* ログインしてなければユーザーデータを追加しない */
-		if(!req.isAuthenticated()) {
+		if(!isAuthenticated) {
         	_render.call(this, view, options, fn);
 			return;
 		}
@@ -196,6 +198,16 @@ app.use(function (req, res, next) {
 		.then(function(rows) {
 			options.mydata.profile = rows[0];
 
+			/* ユーザーへ通知するメッセージを取得 */
+			return RedisModel.get_user_notification(req.user);
+		})
+		.then(function(messages){
+			options.user_messages = messages;
+
+			/* 一度ユーザーへ通知したメッセージは削除する */
+			return RedisModel.delete_user_notification(req.user);
+		})
+		.then(function(){
 			// call SUPER::render
 			_render.call(res, view, options, fn);
 		})

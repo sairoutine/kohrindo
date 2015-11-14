@@ -45,6 +45,12 @@
 	</div>
 	<div class="panel-body">
 		<% if(isAuthenticated) { %>
+			<% if (typeof error_messages !== 'undefined' && error_messages.length > 0) {  %>
+			<% error_messages.forEach(function(message) { %>
+			<div class="alert alert-danger" role="alert"><%= message %></div>
+			<% }); %>
+			<% } %>
+
 			<% if(my_impression.id) { %>
 			<form action="/impression/edit" method="post" role="form">
 			<% } else { %>

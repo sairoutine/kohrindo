@@ -27,8 +27,8 @@ CREATE TABLE `impression` (
   `update_time`  datetime         NOT NULL                COMMENT '更新日時',
   `delete_time`  datetime                  DEFAULT NULL   COMMENT '削除日時',
   PRIMARY KEY (`id`),
-  KEY `i1` (`doujinshi_id`),
-  KEY `i2` (`user_id`)
+  UNIQUE KEY (`doujinshi_id`, `user_id`),
+  KEY `i1` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='感想の一覧';
 
 

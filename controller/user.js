@@ -4,6 +4,8 @@ var util = require('util');
 
 var knex = require('../lib/knex');
 
+var RedisModel = require('../model/redis');
+
 var ControllerBase = require('./base');
 
 // コンストラクタ
@@ -17,21 +19,30 @@ util.inherits(UserController, ControllerBase);
 /* ユーザーのプロフィール編集ページ */
 UserController.prototype.edit_top = function(req, res, next) {
  	/* viewに渡すパラメータ */
-	var data ={};
+	var data ={
+		// エラーメッセージ
+		error_messages: [],
+	};
 
 	/* 認証処理 */
 	if(!req.isAuthenticated()) {
 	   res.redirect(BASE_PATH);
 	}
 
-	/* 認証しているか否か */
-	data.isAuthenticated = req.isAuthenticated();
-
 	knex.select('displayname', 'thumbnail', 'url', 'introduction')
 	.from('user')
 	.where('id', req.user)
 	.then(function(rows) {
 		data.user = rows[0];
+
+		/* edit から呼び出された場合 */
+		if (req.error_messages) {
+			data.user.displayname = req.body.displayname;
+			data.user.url         = req.body.url;
+			data.user.introduction= req.body.introduction;
+			data.error_messages = req.error_messages;
+		}
+
 		res.render('user/edit_top', data);
 	})
 	.catch(function(err) {
@@ -54,21 +65,29 @@ UserController.prototype.edit = function(req, res, next) {
 		introduction: req.body.introduction,
 	};
 
-	/* 入力に誤りがあるときに呼び出す関数 */
-	var input_error = function(error_message) {
-	 	/* viewに渡すパラメータ */
-		var data = {
-			'displayname':  update_data.displayname,
-			'url':          update_data.url,
-			'introduction': update_data.introduction,
-			'error_message': error_message,
-		};
-		res.render('user/edit_top', data);
-	};
-
 	/* 入力値チェック */
+	var error_messages = [];
+
 	if(update_data.displayname.length === 0){
-		input_error('ニックネームが入力されていません。');
+		error_messages.push('ニックネームが入力されていません。');
+	}
+
+	if(update_data.displayname.length > 255){
+		error_messages.push('ニックネームが長過ぎます。');
+	}
+
+	if(update_data.url.length > 255){
+		error_messages.push('URLが長すぎます。');
+	}
+
+	if(update_data.introduction.length > 400){
+		error_messages.push('自己紹介は400文字までにしてください。');
+	}
+
+	/* 入力ミスがあれば */
+	if (error_messages.length) {
+		req.error_messages = error_messages;
+		UserController.prototype.edit_top(req, res, next);
 		return;
 	}
 
@@ -97,10 +116,13 @@ UserController.prototype.edit = function(req, res, next) {
 	.where('id', req.user)
 	.update(update_data)
 	.then(function(rows) {
-		res.redirect(BASE_PATH + 'user/edit_top');
+		return RedisModel.set_user_notification(req.user, 'success', 'プロフィールの編集が完了しました！');
+	})
+	.then(function(){
+		res.redirect(BASE_PATH + 'user/i/' + req.user);
 	})
 	.catch(function(err) {
-		next(new Error(err));
+		next(err);
 	});
 };
 

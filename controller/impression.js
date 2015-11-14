@@ -1,6 +1,10 @@
 var knex = require('../lib/knex');
 var util = require('util');
 
+var RedisModel = require('../model/redis');
+
+var DoujinController = require('./doujin');
+
 var ControllerBase = require('./base');
 
 // コンストラクタ
@@ -19,9 +23,6 @@ ImpressionController.prototype.list = function(req, res, next) {
 
  	/* viewに渡すパラメータ */
 	var data = {};
-
-	/* 認証しているか否か */
-	data.isAuthenticated = req.isAuthenticated();
 
 	var impression_num;
 	var impression_rows;
@@ -154,20 +155,22 @@ ImpressionController.prototype.register = function(req, res, next) {
 	var body         = req.body.body;
 	var user_id      = req.user;
 
-	/* 入力に誤りがあるときに呼び出す関数 */
-	var input_error = function(error_message) {
-	 	/* viewに渡すパラメータ */
-		var data = {
-			'id': doujinshi_id,
-			'body': body,
-			isAuthenticated: req.isAuthenticated()
-		};
-		res.render('/doujin/i', data);
-	};
-
 	/* 入力値チェック */
+	var error_messages = [];
+
 	if(body.length === 0){
-		input_error('本文が入力されていません。');
+		error_messages.push('感想が入力されていません。');
+	}
+
+	if(body.length > 10000){
+		error_messages.push('感想は10000字までです。');
+	}
+
+	/* 入力ミスがあれば */
+	if (error_messages.length) {
+		req.error_messages = error_messages;
+		req.params.id = doujinshi_id;
+		DoujinController.prototype.i(req, res, next);
 		return;
 	}
 
@@ -183,11 +186,14 @@ ImpressionController.prototype.register = function(req, res, next) {
 			'create_time': now,
 			'update_time': now
 	})
+	.then(function() {
+		return RedisModel.set_user_notification(req.user, 'success', '感想の投稿が完了しました！');
+	})
 	.then(function(impression_id) {
 		res.redirect(BASE_PATH + 'doujin/i/' + doujinshi_id);
 	})
 	.catch(function(err) {
-		next(new Error(err));
+		next(err);
 	});
 };
 
@@ -235,6 +241,9 @@ ImpressionController.prototype.edit = function(req, res, next) {
 			'body': body
 		})
 		.where('id', impression_id);
+	})
+	.then(function() {
+		return RedisModel.set_user_notification(req.user, 'success', '感想を修正しました！');
 	})
 	.then(function() {
 		res.redirect(BASE_PATH + 'doujin/i/' + doujinshi_id);

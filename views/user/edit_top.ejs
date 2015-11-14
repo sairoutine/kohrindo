@@ -1,10 +1,16 @@
 <% include ../_header %>
 <% include ../_header_index %>
+
 <div class="panel panel-primary">
 	<div class="panel-heading">
 		プロフィールの編集
 	</div>
 	<div class="panel-body">
+		<% if (typeof error_messages !== 'undefined' && error_messages.length > 0) {  %>
+		<% error_messages.forEach(function(message) { %>
+		<div class="alert alert-danger" role="alert"><%= message %></div>
+		<% }); %>
+		<% } %>
 		<form action="/user/edit" enctype="multipart/form-data" method="POST" class="form-horizontal" role="form">
 			<div class="form-group">
 				<label class="control-label col-sm-2" for="displayname">ニックネーム</label>

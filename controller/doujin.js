@@ -108,13 +108,6 @@ DoujinController.prototype.i = function(req, res, next) {
 	.then(function(impression_rows) {
 		data.impression = impression_rows;
 
-		if(impression_rows.length === 0) {
-			/* TODO: Promisableにしたい */
-			data.impression = [];
-			res.render('doujin/i', data);
-			return;
-		}
-
 		/* IN句用にuser_id の配列を作成 */
 		var user_ids = [];
 		impression_rows.forEach(function(row) {
@@ -128,6 +121,12 @@ DoujinController.prototype.i = function(req, res, next) {
 				data.my_impression.body = row.body;
 			}
 		});
+
+		/* 感想の投稿でエラーがあって呼び出された場合 */
+		if (req.error_messages) {
+			data.my_impression.body = req.body.body;
+			data.error_messages = req.error_messages;
+		}
 
 		/* 感想一覧のユーザー名を取得 */
 		return knex.select('id', 'thumbnail', 'displayname')

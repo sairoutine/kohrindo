@@ -21,4 +21,9 @@
 	</div>
 	<div class="row">
 		<div class="col-md-9 col-md-push-3">
+		<% if (typeof user_messages !== 'undefined' && user_messages.length > 0) {  %>
+		<% user_messages.forEach(function(message) { %>
+		<div class="alert alert-<%= message.type %>" role="alert"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> <%= message.value %></div>
+		<% }); %>
+		<% } %>
 
