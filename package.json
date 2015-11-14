@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "supervisor ./bin/www >>./log/supervisor.log 2>&1 &"
+    "start": "supervisor ./bin/www >>./log/supervisor.log 2>&1 &",
+    "resetdb": "mysql -uroot < ./bin/db_setup.sql && mysql -uroot < ./bin/load_surugaya_doujinshi_csv.sql && redis-cli KEYS 'sess*' | xargs redis-cli DEL"
   },
   "dependencies": {
     "body-parser": "~1.13.1",
