@@ -2,7 +2,7 @@
 <% include ../_header_index %>
 <div class="panel panel-primary">
 	<div class="panel-heading">
-		作品詳細
+		小説詳細
 		<a href="/doujin/edit_top/<%= id %>"><span class="glyphicon glyphicon-pencil">　</span></a>
 	</div>
 	<div class="panel-body">
@@ -41,7 +41,7 @@
 </div>
 	<div class="panel panel-primary">
 	<div class="panel-heading">
-		この作品の感想
+		この小説の感想
 	</div>
 	<div class="panel-body">
 		<% if(isAuthenticated) { %>
@@ -98,6 +98,7 @@
 				<div class="row">
 					<div class="col-md-12">
 						<pre class="well"><%= row.body %></pre>
+						<p class="text-right"><a href="/impression/i/<%= row.id %>">⇛感想の詳細へ</a></span>
 					</div>
 				</div>
 			</div>

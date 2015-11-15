@@ -1,13 +1,14 @@
 <% include ../_header %>
 <% include ../_header_index %>
+<!--
 <div class="panel panel-primary">
 	<div class="panel-heading">
-		作品の検索
+		小説の検索
 	</div>
 	<div class="panel-body">
-		感想を投稿したい作品が既に登録されているか、<br />
+		感想を投稿したい小説が既に登録されているか、<br />
 		まず検索してみましょう！<br />
-		<strong>作品の詳細ページから感想を投稿することができます。</strong><br />
+		<strong>小説の詳細ページから感想を投稿することができます。</strong><br />
 		<br />
 		<form action="/search" method="GET">
 				<div class="input-group">
@@ -19,97 +20,111 @@
 		</form>
 	</div>
 </div>
+-->
 <div class="panel panel-primary">
 	<div class="panel-heading">
 		感想の投稿
 	</div>
 	<div class="panel-body">
-		検索しても作品が見つからなかったら、<br />
-		まず作品の登録をしましょう！<br />
+		<!--検索しても小説が見つからなかったら、<br />-->
+		まず小説の登録をしましょう！<br />
 		<hr />
 
-		<h3>メロンブックスから作品データを取得</h3>
-		URLが下記のもの<br />
-		https://www.melonbooks.co.jp/detail/detail.php?product_id=6桁の数字
-		<form action="/doujin/register_by_melonbooks" method="POST" class="form-horizontal" role="form">
-			<div class="input-group">
-			<span class="input-group-addon">URL</span>
-			<input type="text" name="url" class="form-control" placeholder="http://">
-			<span class="input-group-btn">
-				<input type="submit" class="btn btn-success" value="作品情報を取得">
-			</span>
+		<ul class="nav nav-tabs nav-justified">
+			<li class="active"><a data-toggle="tab" href="#user">自分で登録</a></li>
+			<li><a data-toggle="tab" href="#coolier">東方創想話から</a></li>
+			<li><a data-toggle="tab" href="#pixiv">pixiv小説から</a></li>
+			<li><a data-toggle="tab" href="#melonbooks">メロンブックスから</a></li>
+		</ul>
+		<div class="tab-content">
+			<div id="user" class="tab-pane fade in active">
+				<h3>小説情報を自分で入力する</h3>
+				<form action="/doujin/register_by_user" enctype="multipart/form-data" method="POST" class="form-horizontal" role="form">
+					<div class="form-group">
+						<label class="control-label col-sm-2" for="title">タイトル</label>
+						<div class="col-sm-10">
+							<input type="text" name="title" class="form-control" id="title" value="<%= title %>">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="control-label col-sm-2" for="title">表紙画像</label>
+						<div class="col-sm-10">
+							<img src="/img/noimage.gif" width="150" height="150" class="img-thumbnail" id="thumbnail" alt="表紙画像">
+							<input type="file" name="cover_image"  accept="image/*">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="control-label col-sm-2" for="author">著者名</label>
+						<div class="col-sm-10">
+							<input type="text" name="author" class="form-control" id="author" value="<%= author %>">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="control-label col-sm-2" for="circle">サークル</label>
+						<div class="col-sm-10">
+							<input type="text" name="circle" class="form-control" id="circle" value="<%= circle %>">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="control-label col-sm-2" for="url">詳細URL</label>
+						<div class="col-sm-10">
+							<input type="text" name="url" class="form-control" id="url" value="<%= url %>">
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-sm-offset-2 col-sm-10 text-right">
+							<button type="submit" class="btn btn-success">感想を投稿</button>
+						</div>
+					</div>
+				</form>
 			</div>
-		</form>
-		<hr />
 
-		<h3>pixiv小説から作品データを取得</h3>
-		URLが下記のもの<br />
-		http://www.pixiv.net/novel/show.php?id=8桁の数字
-		<form action="/doujin/register_by_pixiv" method="POST" class="form-horizontal" role="form">
-			<div class="input-group">
-			<span class="input-group-addon">URL</span>
-			<input type="text" name="url" class="form-control" placeholder="http://">
-			<span class="input-group-btn">
-				<input type="submit" class="btn btn-success" value="作品情報を取得">
-			</span>
+			<div id="coolier" class="tab-pane fade">
+				<h3>東方創想話から小説データを取得</h3>
+				URLが下記のもの<br />
+				http://coolier.dip.jp/sosowa/ssw_l/3桁の数字/10桁の数字<br />
+				http://coolier.dip.jp/sosowa/ssw_p/3桁の数字/10桁の数字
+				<form action="/doujin/register_by_coolier" method="POST" class="form-horizontal" role="form">
+					<div class="input-group">
+					<span class="input-group-addon">URL</span>
+					<input type="text" name="url" class="form-control" placeholder="http://">
+					<span class="input-group-btn">
+						<input type="submit" class="btn btn-success" value="小説情報を取得">
+					</span>
+					</div>
+				</form>
 			</div>
-		</form>
-		<hr />
 
-		<h3>東方創想話から作品データを取得</h3>
-		URLが下記のもの<br />
-		http://coolier.dip.jp/sosowa/ssw_l/3桁の数字/10桁の数字<br />
-		http://coolier.dip.jp/sosowa/ssw_p/3桁の数字/10桁の数字
-		<form action="/doujin/register_by_coolier" method="POST" class="form-horizontal" role="form">
-			<div class="input-group">
-			<span class="input-group-addon">URL</span>
-			<input type="text" name="url" class="form-control" placeholder="http://">
-			<span class="input-group-btn">
-				<input type="submit" class="btn btn-success" value="作品情報を取得">
-			</span>
+			<div id="pixiv" class="tab-pane fade">
+				<h3>pixiv小説から小説データを取得</h3>
+				URLが下記のもの<br />
+				http://www.pixiv.net/novel/show.php?id=8桁の数字
+				<form action="/doujin/register_by_pixiv" method="POST" class="form-horizontal" role="form">
+					<div class="input-group">
+					<span class="input-group-addon">URL</span>
+					<input type="text" name="url" class="form-control" placeholder="http://">
+					<span class="input-group-btn">
+						<input type="submit" class="btn btn-success" value="小説情報を取得">
+					</span>
+					</div>
+				</form>
 			</div>
-		</form>
-		<hr />
 
-		<h3>作品情報を自分で入力する</h3>
-		<form action="/doujin/register_by_user" enctype="multipart/form-data" method="POST" class="form-horizontal" role="form">
-			<div class="form-group">
-				<label class="control-label col-sm-2" for="title">タイトル</label>
-				<div class="col-sm-10">
-					<input type="text" name="title" class="form-control" id="title" value="<%= title %>">
-				</div>
+			<div id="melonbooks" class="tab-pane fade">
+				<h3>メロンブックスから小説データを取得</h3>
+				URLが下記のもの<br />
+				https://www.melonbooks.co.jp/detail/detail.php?product_id=6桁の数字
+				<form action="/doujin/register_by_melonbooks" method="POST" class="form-horizontal" role="form">
+					<div class="input-group">
+					<span class="input-group-addon">URL</span>
+					<input type="text" name="url" class="form-control" placeholder="http://">
+					<span class="input-group-btn">
+						<input type="submit" class="btn btn-success" value="小説情報を取得">
+					</span>
+					</div>
+				</form>
 			</div>
-			<div class="form-group">
-				<label class="control-label col-sm-2" for="title">表紙画像</label>
-				<div class="col-sm-10">
-					<img src="/img/noimage.gif" width="150" height="150" class="img-thumbnail" id="thumbnail" alt="表紙画像">
-					<input type="file" name="cover_image"  accept="image/*">
-				</div>
-			</div>
-			<div class="form-group">
-				<label class="control-label col-sm-2" for="author">著者名</label>
-				<div class="col-sm-10">
-					<input type="text" name="author" class="form-control" id="author" value="<%= author %>">
-				</div>
-			</div>
-			<div class="form-group">
-				<label class="control-label col-sm-2" for="circle">サークル</label>
-				<div class="col-sm-10">
-					<input type="text" name="circle" class="form-control" id="circle" value="<%= circle %>">
-				</div>
-			</div>
-			<div class="form-group">
-				<label class="control-label col-sm-2" for="url">詳細URL</label>
-				<div class="col-sm-10">
-					<input type="text" name="url" class="form-control" id="url" value="<%= url %>">
-				</div>
-			</div>
-			<div class="form-group">
-				<div class="col-sm-offset-2 col-sm-10 text-right">
-					<button type="submit" class="btn btn-success">感想を投稿</button>
-				</div>
-			</div>
-		</form>
+		</div>
 	</div>
 </div>
 <% include ../_footer_index %>
