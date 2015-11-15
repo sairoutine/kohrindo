@@ -8,8 +8,17 @@
 	<div class="panel-body">
 		<div class="media">
 			<div class="media-left media-middle">
-				<% if(thumbnail) { %>
-				<img src="/img/<%= thumbnail %>" class="media-object img-thumbnail" alt="表紙画像">
+				<% if(thumbnail && cover_image) { %>
+				<a data-toggle="modal" data-target=".bs-example-modal-sm" href="#"><img src="/img/<%= thumbnail %>" alt="<%= title %>" class="media-object img-thumbnail"></a>
+				<div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+					<div class="modal-dialog modal-sm">
+						<div class="modal-content text-center">
+							<img src="/img/<%= cover_image %>" width="100%" data-dismiss="modal">
+						</div>
+					</div>
+				</div>
+				<% } else if (thumbnail) { %>
+				<img src="/img/<%= thumbnail %>" class="media-object img-thumbnail" alt="<%= title %>">
 				<% } else { %>
 				<img src="/img/doujin/noimage.png" class="media-object img-thumbnail" alt="表紙画像">
 				<% } %>
@@ -32,7 +41,7 @@
 				</div>
 				<div class="row">
 					<div class="col-md-12">
-						詳細URL：<%= url %>
+						詳細URL：<a href="<%= url %>"><%= url %></a>
 					</div>
 				</div>
 			</div>
