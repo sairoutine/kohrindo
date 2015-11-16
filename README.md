@@ -34,6 +34,13 @@ chmod 0700 ./start_kohrindo.sh
 export TWITTER_CONSUMER_KEY=""
 export TWITTER_CONSUMER_SECRET=""
 
+# セッションのシークレットキー
+export SESSION_SECRET=""
+
+# 環境
+export NODE_ENV="development"
+#export NODE_ENV="production"
+
 cd ./kohrindo
 npm install
 npm start
