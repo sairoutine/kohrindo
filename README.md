@@ -1,4 +1,5 @@
-# SETUP
+# Development
+### SETUP
 ```
 git clone https://github.com/sairoutine/kohrindo.git
 sudo npm install -g supervisor
@@ -22,7 +23,7 @@ vim ./start_kohrindo.sh
 chmod 0700 ./start_kohrindo.sh
 ```
 
-# start_kohrindo.sh
+### start_kohrindo.sh
 ```
 #!/bin/sh
 
@@ -33,4 +34,16 @@ export TWITTER_CONSUMER_SECRET=""
 cd ./kohrindo
 npm install
 npm start
+```
+
+# Production
+
+# mysql server setup
+```
+sudo yum -y install http://dev.mysql.com/get/mysql-community-release-el6-5.noarch.rpm
+sudo yum -y install mysql-community-server
+sudo chkconfig mysqld on
+git clone https://github.com/sairoutine/sai-chan.com-mysql.git
+sudo cp sai-chan.com-mysql/my.cnf /etc/my.cnf
+sudo service mysqld start
 ```
