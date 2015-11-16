@@ -1,5 +1,8 @@
+'use strict';
 var knex = require('../lib/knex');
 var util = require('util');
+var config = require('config');
+var BASE_PATH = config.site.base_url;
 
 var RedisModel = require('../model/redis');
 
@@ -131,7 +134,7 @@ ImpressionController.prototype.i = function(req, res, next) {
 				res.render('impression/i', data);
 			})
 			.catch(function(err_message) {
-				next(new Error(error_message));
+				next(err_message);
 			});
 		})
 		.catch(function(err_message) {
@@ -179,18 +182,22 @@ ImpressionController.prototype.register = function(req, res, next) {
 	var dt = new Date();
 	var now = dt.toFormat("YYYY-MM-DD HH24:MI:SS");
 
+	var impression_id;
+
 	knex('impression').insert({
 			'doujinshi_id': doujinshi_id,
-			'user_id': req.user,
+			'user_id': user_id,
 			'body': body,
 			'create_time': now,
 			'update_time': now
 	})
-	.then(function() {
-		return RedisModel.set_user_notification(req.user, 'success', '感想の投稿が完了しました！');
+	.then(function(id) {
+		impression_id = id;
+
+		return RedisModel.set_user_notification(user_id, 'success', '感想の投稿が完了しました！');
 	})
-	.then(function(impression_id) {
-		res.redirect(BASE_PATH + 'doujin/i/' + doujinshi_id);
+	.then(function() {
+		res.redirect(BASE_PATH + 'impression/i/' + impression_id);
 	})
 	.catch(function(err) {
 		next(err);
@@ -205,14 +212,25 @@ ImpressionController.prototype.edit = function(req, res, next) {
 	}
 
 	var impression_id = req.body.impression_id;
+	var doujinshi_id  = req.body.id;
 	var body          = req.body.body;
 
-	/* viewに渡すパラメータ */
-	var data = {};
-
 	/* 入力値チェック */
+	var error_messages = [];
+
 	if(body.length === 0){
-		res.redirect(BASE_PATH + 'impression/i' + doujinshi_id);
+		error_messages.push('感想が入力されていません。');
+	}
+
+	if(body.length > 10000){
+		error_messages.push('感想は10000字までです。');
+	}
+
+	/* 入力ミスがあれば */
+	if (error_messages.length) {
+		req.error_messages = error_messages;
+		req.params.id = doujinshi_id;
+		DoujinController.prototype.i(req, res, next);
 		return;
 	}
 
@@ -221,15 +239,12 @@ ImpressionController.prototype.edit = function(req, res, next) {
 	var dt = new Date();
 	var now = dt.toFormat("YYYY-MM-DD HH24:MI:SS");
 
-	/* 感想が付随してる同人誌ID */
-	var doujinshi_id;
-
 	knex.select('user_id', 'doujinshi_id')
 	.from('impression')
 	.where('id', impression_id)
 	.then(function(rows) {
 		/* 悪意あるユーザーが他人の感想を編集してないかチェック */
-		if(req.user != rows[0].user_id) {
+		if(rows.length === 0 || req.user !== rows[0].user_id) {
 			res.redirect(BASE_PATH);
 			return;
 		}
@@ -238,9 +253,11 @@ ImpressionController.prototype.edit = function(req, res, next) {
 
 		return knex('impression')
 		.update({
-			'body': body
+			'body': body,
+			'update_time': now
 		})
-		.where('id', impression_id);
+		.where('id', impression_id)
+		.where('user_id', req.user);
 	})
 	.then(function() {
 		return RedisModel.set_user_notification(req.user, 'success', '感想を修正しました！');

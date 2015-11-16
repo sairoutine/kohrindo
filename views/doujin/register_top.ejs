@@ -26,6 +26,13 @@
 		感想の投稿
 	</div>
 	<div class="panel-body">
+		<% if (typeof error_messages !== 'undefined' && error_messages.length > 0) {  %>
+		<% error_messages.forEach(function(message) { %>
+		<div class="alert alert-danger" role="alert"><%= message %></div>
+		<% }); %>
+		<% } %>
+
+
 		<!--検索しても小説が見つからなかったら、<br />-->
 		まず小説の登録をしましょう！<br />
 		<hr />
@@ -80,10 +87,11 @@
 			</div>
 
 			<div id="coolier" class="tab-pane fade">
-				<h3>東方創想話から小説データを取得</h3>
+				<h3><a href="http://www5d.biglobe.ne.jp/~coolier2/SS_kai.html">東方創想話</a>から小説データを取得</h3>
 				URLが下記のもの<br />
-				http://coolier.dip.jp/sosowa/ssw_l/3桁の数字/10桁の数字<br />
-				http://coolier.dip.jp/sosowa/ssw_p/3桁の数字/10桁の数字
+				http://coolier.dip.jp/sosowa/ssw_l/数字/10桁の数字<br />
+				http://coolier.dip.jp/sosowa/ssw_p/数字/10桁の数字<br />
+				<br />
 				<form action="/doujin/register_by_coolier" method="POST" class="form-horizontal" role="form">
 					<div class="input-group">
 					<span class="input-group-addon">URL</span>

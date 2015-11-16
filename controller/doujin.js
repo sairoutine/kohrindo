@@ -1,9 +1,13 @@
+'use strict';
 var imagemagick = require('imagemagick-native');
 var fs = require('fs');
 var util = require('util');
+var config = require('config');
+var BASE_PATH = config.site.base_url;
 
 var knex = require('../lib/knex');
 var external_doujin_info = require('../lib/external_doujin_info');
+var RedisModel = require('../model/redis');
 
 var ControllerBase = require('./base');
 
@@ -86,16 +90,22 @@ DoujinController.prototype.i = function(req, res, next) {
 	};
 
 	/* 同人誌情報 */
-	knex.select(['title', 'author', 'circle', 'url', 'thumbnail'])
+	knex.select(['title', 'author', 'circle', 'url', 'thumbnail', 'cover_image'])
 	.from('doujinshi')
 	.where('id', doujinshi_id)
 	.then(function(rows) {
-		data.id        = doujinshi_id;
-		data.title     = rows[0].title;
-		data.author    = rows[0].author;
-		data.circle    = rows[0].circle;
-		data.url       = rows[0].url;
-		data.thumbnail = rows[0].thumbnail;
+		if(rows.length === 0) {
+			res.redirect(BASE_PATH);
+			return;
+		}
+
+		data.id          = doujinshi_id;
+		data.title       = rows[0].title;
+		data.author      = rows[0].author;
+		data.circle      = rows[0].circle;
+		data.url         = rows[0].url;
+		data.thumbnail   = rows[0].thumbnail;
+		data.cover_image = rows[0].cover_image;
 
 		/* 同人誌の感想一覧を取得 */
 		return knex.select('id', 'user_id', 'body', 'create_time')
@@ -114,7 +124,7 @@ DoujinController.prototype.i = function(req, res, next) {
 			user_ids.push(row.user_id);
 
 			/* 自分が既に感想を投稿してればテンプレのbodyに渡す */
-			if(row.user_id == req.user) {
+			if(row.user_id === req.user) {
 				/* 感想ID */
 				data.my_impression.id = row.id;
 				/* 感想本文 */
@@ -183,10 +193,10 @@ DoujinController.prototype.edit_top = function(req, res, next) {
 	var doujinshi_id = req.params.id;
 
 	/* viewに渡すパラメータ */
-	var data = {};
-
-	/* 認証しているか否か */
-	data.isAuthenticated = req.isAuthenticated();
+	var data = {
+		/* エラーメッセージ */
+		error_messages: [],
+	};
 
 	/* 同人誌情報 */
 	knex.select(['title', 'author', 'circle', 'url', 'thumbnail'])
@@ -200,10 +210,18 @@ DoujinController.prototype.edit_top = function(req, res, next) {
 		data.url       = rows[0].url;
 		data.thumbnail = rows[0].thumbnail;
 
+		/* edit から呼び出された場合ユーザーから入力された値を優先 */
+		if (req.error_messages) {
+			data.author = req.body.author;
+			data.circle = req.body.circle;
+			data.url    = req.body.url;
+			data.error_messages = req.error_messages;
+		}
+
 		res.render('doujin/edit_top', data);
 	})
-	.catch(function(err_message) {
-		next(new Error(err_message));
+	.catch(function(err) {
+		next(err);
 	});
 };
 
@@ -217,22 +235,35 @@ DoujinController.prototype.edit = function(req, res, next) {
 	/* 入力値 */
 	var id = req.body.id;
 	var update_data = {
-		title:  req.body.title,
 		author: req.body.author,
 		circle: req.body.circle,
 		url:    req.body.url,
 	};
 
-	/* 入力に誤りがあるときに呼び出す関数 */
-	var input_error = function(error_message) {
-	 	/* viewに渡すパラメータ */
-		var data = update_data;
-		res.render('user/edit_top', data);
-	};
-
 	/* 入力値チェック */
-	if(update_data.title.length === 0){
-		input_error('タイトルが入力されていません。');
+	var error_messages = [];
+
+	if(update_data.author.length > 255){
+		error_messages.push('著者名が長過ぎます。');
+	}
+
+	if(update_data.circle.length > 255){
+		error_messages.push('サークル名が長すぎます。');
+	}
+
+	if(update_data.url.length > 255){
+		error_messages.push('URLが長すぎます。');
+	}
+
+	if(update_data.url.length > 0 && !/^https?:\/\/.*$/.test(update_data.url)){
+		error_messages.push('正しいURLを入力してください。');
+	}
+
+	/* 入力ミスがあれば */
+	if (error_messages.length) {
+		req.error_messages = error_messages;
+		req.params.id = id;
+		DoujinController.prototype.edit_top(req, res, next);
 		return;
 	}
 
@@ -255,12 +286,15 @@ DoujinController.prototype.edit = function(req, res, next) {
 	require('date-utils');
 
 	var dt = new Date();
-	var now = dt.toFormat("YYYY-MM-DD HH24:MI:SS");
+	update_data.update_time = dt.toFormat("YYYY-MM-DD HH24:MI:SS");
 
 	/* 作品の登録 */
 	knex('doujinshi').update(update_data)
 	.where('id', id)
-	.then(function(doujinshi_id) {
+	.then(function() {
+		return RedisModel.set_user_notification(req.user, 'success', '小説情報の編集が完了しました！');
+	})
+	.then(function() {
 		res.redirect(BASE_PATH + 'doujin/i/' + id);
 	})
 	.catch(function(err) {
@@ -283,9 +317,16 @@ DoujinController.prototype.register_top = function(req, res, next) {
 		'author': '',
 		'circle': '',
 		'url': '',
-		'body': '',
-		isAuthenticated: req.isAuthenticated()
 	};
+
+	/* register_by_**** から呼び出された場合ユーザーから入力された値を優先 */
+	if (req.error_messages) {
+		data.title  = req.body.title;
+		data.author = req.body.author;
+		data.circle = req.body.circle;
+		data.url    = req.body.url;
+		data.error_messages = req.error_messages;
+	}
 
 	res.render('doujin/register_top', data);
 };
@@ -302,25 +343,38 @@ DoujinController.prototype.register_by_user = function(req, res, next) {
 	var author      = req.body.author;
 	var circle      = req.body.circle;
 	var url         = req.body.url;
-	var body        = req.body.body;
-
-	/* 入力に誤りがあるときに呼び出す関数 */
-	var input_error = function(error_message) {
-	 	/* viewに渡すパラメータ */
-		var data = {
-			'title': title,
-			'author': author,
-			'circle': circle,
-			'url': url,
-			'body': body,
-			isAuthenticated: req.isAuthenticated()
-		};
-		res.render('user/register_top', data);
-	};
 
 	/* 入力値チェック */
+	var error_messages = [];
+
 	if(title.length === 0){
-		input_error('タイトルが入力されていません。');
+		error_messages.push('小説名を入力してください。');
+	}
+
+	if(title.length > 255){
+		error_messages.push('小説名が長過ぎます。');
+	}
+
+	if(author.length > 255){
+		error_messages.push('著者名が長過ぎます。');
+	}
+
+	if(circle.length > 255){
+		error_messages.push('サークル名が長すぎます。');
+	}
+
+	if(url.length > 255){
+		error_messages.push('URLが長すぎます。');
+	}
+
+	if(url.length > 0 && !/^https?:\/\/.*$/.test(url)){
+		error_messages.push('正しいURLを入力してください。');
+	}
+
+	/* 入力ミスがあれば */
+	if (error_messages.length) {
+		req.error_messages = error_messages;
+		DoujinController.prototype.register_top(req, res, next);
 		return;
 	}
 
@@ -364,7 +418,7 @@ DoujinController.prototype.register_by_user = function(req, res, next) {
 		res.redirect(BASE_PATH + 'doujin/i/' + doujinshi_id);
 	})
 	.catch(function(err) {
-		next(new Error(err));
+		next(err);
 	});
 };
 
@@ -378,10 +432,20 @@ DoujinController.prototype.register_by_coolier = function(req, res, next) {
 	/* 入力値 */
 	var url         = req.body.url;
 
-	/* TODO:入力値チェック */
+	/* 入力値チェック */
+	var error_messages = [];
+
 	if(!external_doujin_info.is_coolier_url(url)){
+		error_messages.push('東方創想話のURLではないようです。');
+	}
+
+	/* 入力ミスがあれば */
+	if (error_messages.length) {
+		req.error_messages = error_messages;
+		DoujinController.prototype.register_top(req, res, next);
 		return;
 	}
+
 
 	require('date-utils');
 
@@ -409,7 +473,7 @@ DoujinController.prototype.register_by_coolier = function(req, res, next) {
 		res.redirect(BASE_PATH + 'doujin/i/' + doujinshi_id);
 	})
 	.catch(function(err) {
-		next(new Error(err));
+		next(err);
 	});
 };
 

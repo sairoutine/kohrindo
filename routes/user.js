@@ -1,15 +1,13 @@
+'use strict';
+
+var config = require('config');
 var express = require('express');
 var router = express.Router();
 
 var multer = require('multer');
 var upload = multer({
 	dest: './public/img/user',
-    limits: {
-        fieldNameSize: 50,
-        files: 1,
-        fields: 5,
-        fileSize: 50 * 1024 * 1024 // Max 50MB
-    },
+    limits: config.upload.limits,
 });
 
 var UserController = require('../controller/user');

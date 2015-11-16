@@ -1,11 +1,13 @@
+'use strict';
 /* 環境変数の確認 */
 if (!process.env.TWITTER_CONSUMER_KEY){
-	console.log('TWITTER_CONSUMER_KEY を環境変数に指定してください。');
-	throw new Error();
+	throw new Error('TWITTER_CONSUMER_KEY を環境変数に指定してください。');
 }
 if (!process.env.TWITTER_CONSUMER_SECRET){
-	console.log('TWITTER_CONSUMER_SECRET を環境変数に指定してください。');
-	throw new Error();
+	throw new Error('TWITTER_CONSUMER_SECRET を環境変数に指定してください。');
+}
+if (!process.env.SESSION_SECRET){
+	throw new Error('SESSION_SECRET を環境変数に指定してください。');
 }
 
 var express = require('express');
@@ -18,21 +20,23 @@ var session = require('express-session');
 var RedisStore = require('connect-redis')(session);
 var passport = require('passport');
 var TwitterStrategy = require('passport-twitter').Strategy;
+var config = require('config');
 var crypto = require('crypto');
 var request = require('request');
 var fs = require('fs');
 
 var knex = require('./lib/knex');
-/* Config を読み込む */
-var conf = require('config');
 
 var app = express();
 
-// view engine setup
+// Config の取得
+var BASE_PATH = config.site.base_url;
+
+// Viewの設定
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-// uncomment after placing your favicon in /public
+// faviconの設定
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 
 if (app.get('env') === 'development') {
@@ -47,9 +51,6 @@ app.use(cookieParser());
 
 // 静的ファイルを置く場所
 app.use(express.static(path.join(__dirname, 'public')));
-
-
-BASE_PATH = 'http://sai-chan.com:3500/';
 
 passport.use(new TwitterStrategy({
 		consumerKey: process.env.TWITTER_CONSUMER_KEY,
@@ -143,81 +144,23 @@ passport.deserializeUser(function(user_id, done) {
 
 app.use(session({
 	/* 環境変数から取得する */
-	secret: "hogesecret",
+	secret: process.env.SESSION_SECRET,
 	resave: false,
 	saveUninitialized: true,
 	key: 'sid',
 	cookie: {maxAge: 1000 * 60 * 60 * 24 * 7}, // 1week
 	store: new RedisStore({
-		host: 'localhost',
-		port: 6379,
+		host: config.redis.host,
+		port: config.redis.port,
 		prefix: 'kohrindo:session:'
 	})
 }));
 app.use(passport.initialize()); // passportの初期化処理
 app.use(passport.session()); // passportのsessionを設定(中身はしらぬ)
-// -- 追加ココまで --
 
-var RedisModel = require('./model/redis');
-// テンプレに渡す共通変数はここで定義する。
-app.use(function (req, res, next) {
-	// SUPER::render
-	var _render = res.render;
-
-	/* ユーザーがログイン済かどうか */
-	var isAuthenticated = req.isAuthenticated();
-
-	/* res.render をオーバーライド */
-	res.render = function(view, options, fn) {
-		/* 認証しているか否か */
-		options.isAuthenticated = isAuthenticated;
-
-		/* ユーザーデータを追加する */
-		options.mydata = {};
-
-		/* ログインしてなければユーザーデータを追加しない */
-		if(!isAuthenticated) {
-        	_render.call(this, view, options, fn);
-			return;
-		}
-
-		/* ユーザーの投稿数 */
-		knex.select(
-			knex.raw('count(*) as impression_num')
-		)
-		.from('impression')
-		.where('user_id', req.user)
-		.then(function(rows) {
-			options.mydata.impression_num = rows[0].impression_num;
-
-			/* ユーザー名とユーザー画像 */
-			return knex.select('displayname', 'thumbnail')
-			.from('user')
-			.where('id', req.user);
-		})
-		.then(function(rows) {
-			options.mydata.profile = rows[0];
-
-			/* ユーザーへ通知するメッセージを取得 */
-			return RedisModel.get_user_notification(req.user);
-		})
-		.then(function(messages){
-			options.user_messages = messages;
-
-			/* 一度ユーザーへ通知したメッセージは削除する */
-			return RedisModel.delete_user_notification(req.user);
-		})
-		.then(function(){
-			// call SUPER::render
-			_render.call(res, view, options, fn);
-		})
-		.catch(function(err) {
-			throw err;
-		});
-
-    };
-    next();
-});
+// res.render のオーバーライド
+var override_render = require('./middleware/override-render');
+app.use(override_render);
 
 // routes ディレクトリ以下のjsをルーティング
 fs.readdirSync('./routes')

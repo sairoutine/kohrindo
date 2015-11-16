@@ -1,6 +1,9 @@
+'use strict';
 var imagemagick = require('imagemagick-native');
 var fs = require('fs');
 var util = require('util');
+var config = require('config');
+var BASE_PATH = config.site.base_url;
 
 var knex = require('../lib/knex');
 
@@ -80,6 +83,10 @@ UserController.prototype.edit = function(req, res, next) {
 		error_messages.push('URLが長すぎます。');
 	}
 
+	if(update_data.url.length > 0 && !/^https?:\/\/.*$/.test(update_data.url)){
+		error_messages.push('正しいURLを入力してください。');
+	}
+
 	if(update_data.introduction.length > 400){
 		error_messages.push('自己紹介は400文字までにしてください。');
 	}
@@ -110,7 +117,7 @@ UserController.prototype.edit = function(req, res, next) {
 	require('date-utils');
 
 	var dt = new Date();
-	var now = dt.toFormat("YYYY-MM-DD HH24:MI:SS");
+	update_data.update_time = dt.toFormat("YYYY-MM-DD HH24:MI:SS");
 
 	knex('user')
 	.where('id', req.user)

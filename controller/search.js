@@ -1,4 +1,4 @@
-var knex = require('../lib/knex');
+'use strict';
 var util = require('util');
 
 var ControllerBase = require('./base');
@@ -14,9 +14,6 @@ util.inherits(SearchController, ControllerBase);
 SearchController.prototype.index = function(req, res, next) {
  	/* viewに渡すパラメータ */
 	var data = {};
-
-	/* 認証しているか否か */
-	data.isAuthenticated = req.isAuthenticated();
 
 	res.render('search/index', data);
 };

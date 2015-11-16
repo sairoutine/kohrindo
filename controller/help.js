@@ -1,4 +1,4 @@
-var knex = require('../lib/knex');
+'use strict';
 var util = require('util');
 
 var ControllerBase = require('./base');

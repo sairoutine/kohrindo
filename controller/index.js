@@ -1,3 +1,4 @@
+'use strict';
 var knex = require('../lib/knex');
 var util = require('util');
 

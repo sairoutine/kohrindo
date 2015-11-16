@@ -1,4 +1,3 @@
-/*jslint node: true */
 'use strict';
 
 var redis = require('../lib/redis');
@@ -44,7 +43,7 @@ RedisModel.get_user_notification = function(user_id) {
 
 	return redis.lrange('kohrindo:user_notification:' + user_id, 0, -1)
 	.then(function(messages) {
-		return new Promise(function(resolve, reject) {
+		return new Promise(function(resolve) {
 			var parsed_messages = [];
 
 			messages.forEach(function(message) {
