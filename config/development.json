@@ -1,6 +1,6 @@
 {
 	"site": {
-		"base_url": "http://sai-chan.com:3500/"
+		"base_url": "http://korindo-dev1.sai-chan.com/"
 	},
 	"node": {
 		"port": 3500

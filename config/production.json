@@ -1,0 +1,23 @@
+{
+	"site": {
+		"base_url": "http://korindo.sai-chan.com/"
+	},
+	"node": {
+		"port": 3500
+	},
+	"redis": {
+		"host": "db01",
+		"port": 6379
+	},
+	"mysql": {
+		"host": "db01",
+		"port": 3306,
+		"user": "root",
+		"password": "",
+		"database": "doujinshi"
+	},
+	"mysqlpool": {
+		"max": 10,
+		"min": 1
+	}
+}
