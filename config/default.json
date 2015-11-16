@@ -1,5 +1,10 @@
 {
-    "twitter": {
-	        "api_key": "hogehoge"
-	    }
+	"upload": {
+		"limits": {
+			"fieldNameSize": 50,
+			"files": 1,
+			"fields": 5,
+			"fileSize": 52428800
+		}
+	}
 }
