@@ -18,7 +18,7 @@ sudo service mysqld start
 # Install node v1.2
 fab root_install_node12 -H localhost
 # Install ImageMagick
-sudo yum install ImageMagick-c++ ImageMagick-c++-devel
+sudo yum install -y ImageMagick-c++ ImageMagick-c++-devel
 # setup db
 mysql -uroot < ./kohrindo/bin/db_setup.sql
 
@@ -58,6 +58,10 @@ sudo rpm -Uvh http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
 sudo yum --enablerepo=remi,remi-test install -y redis
 sudo chkconfig --add redis
 sudo chkconfig --level 345 redis on
+
+# modify bind 127.0.0.1 -> bind db01
+vim /etc/redis.conf
+
 sudo service redis start
 ```
 
@@ -71,9 +75,22 @@ cp node-v0.12.2-linux-x64/bin/node /usr/local/bin/node
 sudo yum install -y epel-release
 sudo yum install -y npm --enablerepo=epel
 
-
-sudo npm install -g forever
+# Install ImageMagick
 sudo yum install -y gcc gcc-c++
+sudo yum install -y ImageMagick-c++ ImageMagick-c++-devel
+# Install forever
+sudo npm install -g forever
+# Add node user
+sudo useradd node
+su - node
+# git clone apps
+git clone https://github.com/sairoutine/kohrindo.git /home/node/kohrindo
+
+# setup db
+mysql -uroot < ./kohrindo/bin/db_setup.sql
+
+vim ./start_kohrindo.sh
+chmod 0700 ./start_kohrindo.sh
 ```
 
 
