@@ -49,6 +49,8 @@ sudo chkconfig mysqld on
 git clone https://github.com/sairoutine/sai-chan.com-mysql.git
 sudo cp sai-chan.com-mysql/my.cnf /etc/my.cnf
 sudo service mysqld start
+# 10.3.0.110 is ap001
+echo 'grant all privileges on *.* to root@"10.3.0.110" with grant option;' | mysql -uroot
 ```
 
 ### redis server setup on db01
@@ -74,7 +76,6 @@ cp node-v0.12.2-linux-x64/bin/node /usr/local/bin/node
 # npm Install
 sudo yum install -y epel-release
 sudo yum install -y npm --enablerepo=epel
-
 # Install ImageMagick
 sudo yum install -y gcc gcc-c++
 sudo yum install -y ImageMagick-c++ ImageMagick-c++-devel
@@ -88,6 +89,7 @@ git clone https://github.com/sairoutine/kohrindo.git /home/node/kohrindo
 
 # setup db
 mysql -uroot < ./kohrindo/bin/db_setup.sql
+mysql -uroot < ./kohrindo/bin/load_surugaya_csv.sql
 
 vim ./start_kohrindo.sh
 chmod 0700 ./start_kohrindo.sh
