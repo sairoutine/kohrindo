@@ -15,6 +15,16 @@ sudo yum -y install http://dev.mysql.com/get/mysql-community-release-el6-5.noarc
 sudo yum -y install mysql-community-server
 sudo chkconfig mysqld on
 sudo service mysqld start
+# Install Java
+sudo yum install java
+# Install ElasticSearch
+sudo rpm --import https://packages.elastic.co/GPG-KEY-elasticsearch
+vim /etc/yum.repos.d/elasticsearch.repo
+sudo yum install elasticsearch
+chkconfig --add elasticsearch
+sudo elasticsearch start
+# Install Kuromoji
+/usr/share/elasticsearch/bin/plugin install analysis-kuromoji
 # Install node v1.2
 fab root_install_node12 -H localhost
 # Install ImageMagick
@@ -44,6 +54,16 @@ export NODE_ENV="development"
 cd ./kohrindo
 npm install
 npm start
+```
+
+### /etc/yum.repos.d/elasticsearch.repo
+```
+[elasticsearch-2.0]
+name=Elasticsearch repository for 2.0 packages
+baseurl=http://packages.elastic.co/elasticsearch/2.x/centos
+gpgcheck=1
+gpgkey=http://packages.elastic.co/GPG-KEY-elasticsearch
+enabled=1
 ```
 
 # Production
