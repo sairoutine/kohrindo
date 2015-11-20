@@ -16,7 +16,7 @@ sudo yum -y install mysql-community-server
 sudo chkconfig mysqld on
 sudo service mysqld start
 # Install Java
-sudo yum install java
+sudo yum install -y java-1.8.0-openjdk
 # Install ElasticSearch
 sudo rpm --import https://packages.elastic.co/GPG-KEY-elasticsearch
 vim /etc/yum.repos.d/elasticsearch.repo
@@ -24,6 +24,7 @@ sudo yum install elasticsearch
 chkconfig --add elasticsearch
 sudo elasticsearch start
 # Install Kuromoji
+sudo yum install -y /usr/lib64/libssl3.so
 /usr/share/elasticsearch/bin/plugin install analysis-kuromoji
 # Install node v1.2
 fab root_install_node12 -H localhost
