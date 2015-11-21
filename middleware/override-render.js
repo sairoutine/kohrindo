@@ -18,6 +18,9 @@ module.exports = function (req, res, next) {
 		/* 認証しているか否か */
 		options.isAuthenticated = isAuthenticated;
 
+		/* 検索ワード(デフォルト設定だけしとく) */
+		options.query = options.query || "";
+
 		/* ユーザーデータを追加する */
 		options.mydata = {};
 

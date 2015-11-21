@@ -55,9 +55,9 @@ ElasticSearchModel.search = function(query, size, from) {
 	return elastic.search({
 		index: index,
 		type: type,
+		analyzer: 'kuromoji_analyzer',
 		size: size,
 		from: from, //paging offset
-		analyzer: 'kuromoji_analyzer',
 		body: {
 			query: query
 		}	

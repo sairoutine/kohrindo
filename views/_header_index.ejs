@@ -1,5 +1,4 @@
 <div class="container" style="padding-top:30px">
-	<!--
 	<div class="row">
 	<div class="col-md-12 text-center">
 		<div class="panel panel-primary">
@@ -10,7 +9,7 @@
 				<form action="/search" method="GET">
 				<div class="input-group input-group-lg">
 					<span class="input-group-addon"><span class="glyphicon glyphicon-search"></span></span>
-					<input type="text" name="query" class="form-control" placeholder="本のタイトル名・著者名で検索">
+					<input type="text" name="query" class="form-control" placeholder="本のタイトル名・著者名で検索" value="<%= query %>">
 					<span class="input-group-btn">
 						<input type="submit" class="btn btn-success" value="検索">
 					</span>
@@ -20,7 +19,6 @@
 		</div>
 	</div>
 	</div>
-	-->
 	<div class="row">
 		<div class="col-md-9 col-md-push-3">
 		<% if (typeof user_messages !== 'undefined' && user_messages.length > 0) {  %>
