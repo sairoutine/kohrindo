@@ -1,7 +1,7 @@
 "use strict";
-var elastic = require('./model/elastic/doujinshi');
+var elastic = require('../model/elastic/doujinshi');
 
-var i = 8;
+var i = 9;
 
 elastic.create({ id:i, title: '東方Project', author: 'ZUN', circle: '上海アリス' })
 .then(function(){

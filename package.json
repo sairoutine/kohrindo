@@ -16,6 +16,7 @@
     "date-utils": "*",
     "debug": "~2.2.0",
     "ejs": "~2.3.2",
+    "elasticsearch": "^9.0.1",
     "express": "~4.13.0",
     "express-session": "^1.12.1",
     "imagemagick-native": "^1.8.0",
