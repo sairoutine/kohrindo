@@ -59,7 +59,7 @@ ElasticSearchModel.search = function(query, size, from) {
 		size: size,
 		from: from, //paging offset
 		body: {
-			query: query
+			query: query,
 		}	
 	});
 };

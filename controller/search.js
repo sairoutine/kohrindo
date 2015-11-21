@@ -45,9 +45,11 @@ SearchController.prototype.index = function(req, res, next) {
 	.then(function(results) {
 		total_count = results.hits.total;
 
+		var data = results.hits.hits;
+
 		/* 検索結果の同人誌ID一覧 */
 		var doujishi_ids = [];
-		results.hits.hits.forEach(function(res) {
+		data.forEach(function(res) {
 			doujishi_ids.push(res._id);
 		});
 
