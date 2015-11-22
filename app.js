@@ -180,22 +180,22 @@ app.get("/auth/twitter", passport.authenticate('twitter'));
 
 // Twitterからcallbackうける
 app.get("/auth/twitter/callback", passport.authenticate('twitter', {
-  successRedirect: '/',
-  failureRedirect: '/'
+	successRedirect: '/',
+	 failureRedirect: '/'
 }));
 
 // ログアウト
 app.get("/auth/logout", function(req, res){
-    req.logout();
-    res.redirect("/");
+	req.logout();
+	res.redirect("/");
 });
 
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
+	var err = new Error('Not Found');
+	err.status = 404;
+	next(err);
 });
 
 // error handlers
@@ -216,7 +216,6 @@ else {
 	app.use(function(err, req, res, next) {
 		// 既にredirectとかされてたら何もしない
 		if(res.headersSent) return;
-
 
 		res.status(err.status || 500);
 		res.render('error', {
