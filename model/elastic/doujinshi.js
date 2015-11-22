@@ -24,7 +24,7 @@ ElasticSearchModel.create = function(data){
 	return elastic.create({
 		index: index,
 		type: type,
-		id: data.id,
+		id: data.id.toString(),
 		body: {
 			title: data.title,
 			author: data.author,
@@ -34,8 +34,13 @@ ElasticSearchModel.create = function(data){
 };
 
 // update 
-ElasticSearchModel.update = function(id, doc) {
-	if(!id || !doc)  throw new Error('two arguments must be need'); 
+ElasticSearchModel.update = function(id, data) {
+	if(!id || !data)  throw new Error('two arguments must be need'); 
+
+	var doc = {};
+	if('title'  in data) doc.title  = data.title;
+	if('author' in data) doc.author = data.author;
+	if('circle' in data) doc.circle = data.circle;
 
 	return elastic.update({
 		index: index,

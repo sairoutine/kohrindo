@@ -9,6 +9,9 @@ var knex = require('../lib/knex');
 var external_doujin_info = require('../lib/external_doujin_info');
 var RedisModel = require('../model/redis');
 
+// doujin elastic model
+var elastic = require('../model/elastic/doujinshi');
+
 var ControllerBase = require('./base');
 
 // コンストラクタ
@@ -288,10 +291,15 @@ DoujinController.prototype.edit = function(req, res, next) {
 	var dt = new Date();
 	update_data.update_time = dt.toFormat("YYYY-MM-DD HH24:MI:SS");
 
-	/* 作品の登録 */
+	/* MYSQLの作品の更新 */
 	knex('doujinshi').update(update_data)
 	.where('id', id)
 	.then(function() {
+		/* ElasticSearch 作品の更新 */
+		return elastic.update(id, update_data);
+	})
+	.then(function() {
+		/* ユーザーに通知 */
 		return RedisModel.set_user_notification(req.user, 'success', '小説情報の編集が完了しました！');
 	})
 	.then(function() {
@@ -401,7 +409,10 @@ DoujinController.prototype.register_by_user = function(req, res, next) {
 	var dt = new Date();
 	var now = dt.toFormat("YYYY-MM-DD HH24:MI:SS");
 
-	/* 作品の登録 */
+	/* auto increament で生成されたID */
+	var doujinshi_id;
+
+	/* MySQLに作品の登録 */
 	knex('doujinshi').insert({
 			'title': title,
 			'author': author,
@@ -414,7 +425,17 @@ DoujinController.prototype.register_by_user = function(req, res, next) {
 			'create_time': now,
 			'update_time': now
 	})
-	.then(function(doujinshi_id) {
+	.then(function(id) {
+		doujinshi_id = id;
+
+		return elastic.create({
+			'id':     doujinshi_id,
+			'title':  title,
+			'author': author,
+			'circle': circle,	
+		});
+	})
+	.then(function() {
 		res.redirect(BASE_PATH + 'doujin/i/' + doujinshi_id);
 	})
 	.catch(function(err) {
@@ -452,10 +473,14 @@ DoujinController.prototype.register_by_coolier = function(req, res, next) {
 	var dt = new Date();
 	var now = dt.toFormat("YYYY-MM-DD HH24:MI:SS");
 
+	var doujinshi_id, data;
+
 	/* 作品の登録 */
 	external_doujin_info
 	.get_by_coolier(url)
-	.then(function(data) {
+	.then(function(result) {
+		data = result;
+
 		return knex('doujinshi').insert({
 			'title': data.title,
 			'author': data.author,
@@ -469,7 +494,17 @@ DoujinController.prototype.register_by_coolier = function(req, res, next) {
 			'update_time': now
 		});
 	})
-	.then(function(doujinshi_id) {
+	.then(function(id) {
+		doujinshi_id = id;
+
+		return elastic.create({
+			'id':     doujinshi_id,
+			'title':  data.title,
+			'author': data.author,
+			'circle': data.circle,	
+		});
+	})
+	.then(function() {
 		res.redirect(BASE_PATH + 'doujin/i/' + doujinshi_id);
 	})
 	.catch(function(err) {
@@ -497,10 +532,14 @@ DoujinController.prototype.register_by_melonbooks = function(req, res, next) {
 	var dt = new Date();
 	var now = dt.toFormat("YYYY-MM-DD HH24:MI:SS");
 
+	var doujinshi_id, data;
+
 	/* 作品の登録 */
 	external_doujin_info
 	.get_by_melonbooks(url)
-	.then(function(data) {
+	.then(function(results) {
+		data = results;
+
 		return knex('doujinshi').insert({
 			'title': data.title,
 			'author': data.author,
@@ -514,7 +553,17 @@ DoujinController.prototype.register_by_melonbooks = function(req, res, next) {
 			'update_time': now
 		});
 	})
-	.then(function(doujinshi_id) {
+	.then(function(id) {
+		doujinshi_id = id;
+
+		return elastic.create({
+			'id':     doujinshi_id,
+			'title':  data.title,
+			'author': data.author,
+			'circle': data.circle,	
+		});
+	})
+	.then(function() {
 		res.redirect(BASE_PATH + 'doujin/i/' + doujinshi_id);
 	})
 	.catch(function(err) {
@@ -542,10 +591,14 @@ DoujinController.prototype.register_by_pixiv = function(req, res, next) {
 	var dt = new Date();
 	var now = dt.toFormat("YYYY-MM-DD HH24:MI:SS");
 
+	var doujinshi_id, data;
+
 	/* 作品の登録 */
 	external_doujin_info
 	.get_by_pixiv(url)
-	.then(function(data) {
+	.then(function(results) {
+		data = results;
+
 		return knex('doujinshi').insert({
 			'title': data.title,
 			'author': data.author,
@@ -559,7 +612,17 @@ DoujinController.prototype.register_by_pixiv = function(req, res, next) {
 			'update_time': now
 		});
 	})
-	.then(function(doujinshi_id) {
+	.then(function(id) {
+		doujinshi_id = id;
+
+		return elastic.create({
+			'id':     doujinshi_id,
+			'title':  data.title,
+			'author': data.author,
+			'circle': data.circle,	
+		});
+	})
+	.then(function() {
 		res.redirect(BASE_PATH + 'doujin/i/' + doujinshi_id);
 	})
 	.catch(function(err) {
