@@ -39,13 +39,13 @@ SearchController.prototype.index = function(req, res, next) {
 			return elastic.search_by_all(search_word, limit, offset * limit);
 		}
 		else {
-			return [];
+			return {};
 		}
 	})
 	.then(function(results) {
-		total_count = results.hits.total;
+		total_count = 'hits' in results ? results.hits.total : 0;
 
-		var data = results.hits.hits;
+		var data    = 'hits' in results ? results.hits.hits : [];
 
 		/* 検索結果の同人誌ID一覧 */
 		var doujishi_ids = [];
