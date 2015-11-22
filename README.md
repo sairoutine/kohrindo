@@ -137,6 +137,12 @@ vim ./start_kohrindo.sh
 chmod 0700 ./start_kohrindo.sh
 ```
 
+### integrating release
+```
+git pull --rebase
+npm install
+forever restartall
+```
 
 
 
