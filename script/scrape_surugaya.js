@@ -1,4 +1,6 @@
+'use strict';
 var doujin_info = require('../lib/external_doujin_info');
+var Promise = require('bluebird');
 
 process.chdir('/home/kohrindo/kohrindo');
 var knex = require('../lib/knex');
