@@ -19,7 +19,7 @@
 	"mysqlpool": {
 		"max": 10,
 		"min": 1
-	}
+	},
 	"elasticsearch": {
 		"host": {
 			"protocol": "http",
