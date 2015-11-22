@@ -56,7 +56,7 @@
 		<% if(isAuthenticated) { %>
 			<% if (typeof error_messages !== 'undefined' && error_messages.length > 0) {  %>
 			<% error_messages.forEach(function(message) { %>
-			<div class="alert alert-danger" role="alert"><%= message %></div>
+			<div class="alert alert-danger" role="alert"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> <%= message %></div>
 			<% }); %>
 			<% } %>
 
