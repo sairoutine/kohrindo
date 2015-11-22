@@ -20,4 +20,18 @@
 		"max": 10,
 		"min": 1
 	}
+	"elasticsearch": {
+		"host": {
+			"protocol": "http",
+			"host": "db01",
+			"port": 9200
+		},
+		"log": "error",
+		"apiVersion": "2.0",
+		"requestTimeout": 3000,
+		"keepAlive": true,
+		"maxSockets": 10,
+		"minSockets": 1
+	}
+
 }
