@@ -2,6 +2,7 @@
 var imagemagick = require('imagemagick-native');
 var fs = require('fs');
 var util = require('util');
+var Promise = require('bluebird');
 var config = require('config');
 var BASE_PATH = config.site.base_url;
 
@@ -40,37 +41,25 @@ DoujinController.prototype.list = function(req, res, next) {
 	.limit(limit_num)
 	.offset(offset * limit_num)
 	.then(function(doujinshi_rows) {
-
-		if(doujinshi_rows.length === 0) {
-			/* TODO: Promisableにしたい */
-			data.doujinshi = [];
-			res.render('doujin/list', data);
-			return;
-		}
-
 		/* 同人誌一覧をテンプレに渡す */
 		data.doujinshi = doujinshi_rows;
 
-		knex.count('* as doujinshi_num')
-		.from('doujinshi')
-		.then(function(rows) {
-			/* ページング用 */
-			data.pagination = {
-				total_count: rows[0].doujinshi_num,
-				page_size: limit_num,
-				page_count: Math.ceil(rows[0].doujinshi_num / limit_num),
-				current_page: offset,
-				url: '/doujin/list/?page=',
-			};
-
-			res.render('doujin/list', data);
-		})
-		.catch(function(err_message) {
-			next(new Error(err_message));
-		});
+		return knex.count('* as doujinshi_num')
+		.from('doujinshi');
+	})
+	.then(function(rows) {
+		/* ページング用 */
+		data.pagination = {
+			total_count: rows[0].doujinshi_num,
+			page_size: limit_num,
+			page_count: Math.ceil(rows[0].doujinshi_num / limit_num),
+			current_page: offset,
+			url: '/doujin/list/?page=',
+		};
+		res.render('doujin/list', data);
 	})
 	.catch(function(err_message) {
-		next(new Error(err_message));
+		next(err_message);
 	});
 };
 
@@ -99,7 +88,7 @@ DoujinController.prototype.i = function(req, res, next) {
 	.then(function(rows) {
 		if(rows.length === 0) {
 			res.redirect(BASE_PATH);
-			return;
+			return Promise.reject(new Error("Invalid doujinshi id: " + doujinshi_id));
 		}
 
 		data.id          = doujinshi_id;
@@ -188,11 +177,6 @@ DoujinController.prototype.i = function(req, res, next) {
 /* 同人誌の編集のための入力画面 */
 /* :id 同人誌ID */
 DoujinController.prototype.edit_top = function(req, res, next) {
-	/* 認証処理 */
-	if(!req.isAuthenticated()) {
-	   res.redirect(BASE_PATH);
-	}
-
 	var doujinshi_id = req.params.id;
 
 	/* viewに渡すパラメータ */
@@ -230,11 +214,6 @@ DoujinController.prototype.edit_top = function(req, res, next) {
 
 /* 同人誌の編集処理 */
 DoujinController.prototype.edit = function(req, res, next) {
-	/* 認証処理 */
-	if(!req.isAuthenticated()) {
-	   res.redirect(BASE_PATH);
-	}
-
 	/* 入力値 */
 	var id = req.body.id;
 	var update_data = {
@@ -314,11 +293,6 @@ DoujinController.prototype.edit = function(req, res, next) {
 
 /* 同人誌の登録のための入力画面 */
 DoujinController.prototype.register_top = function(req, res, next) {
-	/* 認証処理 */
-	if(!req.isAuthenticated()) {
-	   res.redirect(BASE_PATH);
-	}
-
 	 /* viewに渡すパラメータ */
 	var data = {
 		'title': '',
@@ -341,11 +315,6 @@ DoujinController.prototype.register_top = function(req, res, next) {
 
 /* 同人誌の登録処理 */
 DoujinController.prototype.register_by_user = function(req, res, next) {
-	/* 認証処理 */
-	if(!req.isAuthenticated()) {
-	   res.redirect(BASE_PATH);
-	}
-
 	/* 入力値 */
 	var title       = req.body.title;
 	var author      = req.body.author;
@@ -445,11 +414,6 @@ DoujinController.prototype.register_by_user = function(req, res, next) {
 
 /* 東方創想話から同人誌登録 */
 DoujinController.prototype.register_by_coolier = function(req, res, next) {
-	/* 認証処理 */
-	if(!req.isAuthenticated()) {
-	   res.redirect(BASE_PATH);
-	}
-
 	/* 入力値 */
 	var url         = req.body.url;
 
@@ -514,11 +478,6 @@ DoujinController.prototype.register_by_coolier = function(req, res, next) {
 
 /* メロンブックスから同人誌登録 */
 DoujinController.prototype.register_by_melonbooks = function(req, res, next) {
-	/* 認証処理 */
-	if(!req.isAuthenticated()) {
-	   res.redirect(BASE_PATH);
-	}
-
 	/* 入力値 */
 	var url         = req.body.url;
 
@@ -567,17 +526,12 @@ DoujinController.prototype.register_by_melonbooks = function(req, res, next) {
 		res.redirect(BASE_PATH + 'doujin/i/' + doujinshi_id);
 	})
 	.catch(function(err) {
-		next(new Error(err));
+		next(err);
 	});
 };
 
 /* pixiv小説から同人誌登録 */
 DoujinController.prototype.register_by_pixiv = function(req, res, next) {
-	/* 認証処理 */
-	if(!req.isAuthenticated()) {
-	   res.redirect(BASE_PATH);
-	}
-
 	/* 入力値 */
 	var url         = req.body.url;
 
@@ -626,7 +580,7 @@ DoujinController.prototype.register_by_pixiv = function(req, res, next) {
 		res.redirect(BASE_PATH + 'doujin/i/' + doujinshi_id);
 	})
 	.catch(function(err) {
-		next(new Error(err));
+		next(err);
 	});
 };
 

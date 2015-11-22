@@ -10,16 +10,19 @@ var upload = multer({
     limits: config.upload.limits,
 });
 
+/* ログイン必須のページかどうか */
+var must_authenticated = require('../middleware/must_authenticated');
+
 var UserController = require('../controller/user');
 var user = new UserController();
 
 /* TODO: ユーザーの一覧 */
 
 /* ユーザーのプロフィール編集ページ */
-router.get('/edit_top', user.edit_top);
+router.get('/edit_top', must_authenticated, user.edit_top);
 
 /* ユーザーのプロフィール編集 */
-router.post('/edit', upload.single('thumbnail'), user.edit);
+router.post('/edit', must_authenticated, upload.single('thumbnail'), user.edit);
 
 /* 他ユーザーのマイページ */
 router.get('/i/:id', user.i);

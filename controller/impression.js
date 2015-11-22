@@ -1,6 +1,7 @@
 'use strict';
 var knex = require('../lib/knex');
 var util = require('util');
+var Promise = require('bluebird');
 var config = require('config');
 var BASE_PATH = config.site.base_url;
 
@@ -97,62 +98,49 @@ ImpressionController.prototype.i = function(req, res, next) {
 	/* view に渡すパラメータ */
 	var data = {};
 
-	/* 認証しているか否か */
-	data.isAuthenticated = req.isAuthenticated();
-
 	/* 感想情報を取得 */
 	knex.select('doujinshi_id', 'user_id', 'body', 'create_time')
 	.from('impression')
 	.where('id', impression_id)
 	.then(function(impression_rows) {
+		if(impression_rows.length === 0) {
+			res.redirect(BASE_PATH);
+			return Promise.reject(new Error('Invalid impression id:' + impression_id));
+		}
+
 		data.body         = impression_rows[0].body;
 		data.create_time  = impression_rows[0].create_time;
 		data.user_id      = impression_rows[0].user_id;
 		data.doujinshi_id = impression_rows[0].doujinshi_id;
 
-		var doujinshi_id = impression_rows[0].doujinshi_id;
-		var user_id      = impression_rows[0].user_id;
-
 		/* 同人誌情報 */
-		knex.select(['title', 'author', 'circle', 'url', 'thumbnail'])
+		return knex.select(['title', 'author', 'circle', 'url', 'thumbnail'])
 		.from('doujinshi')
-		.where('id', doujinshi_id)
-		.then(function(rows) {
-			data.title     = rows[0].title;
-			data.author    = rows[0].author;
-			data.circle    = rows[0].circle;
-			data.url       = rows[0].url;
-			data.thumbnail = rows[0].thumbnail;
+		.where('id', data.doujinshi_id);
+	})
+	.then(function(rows) {
+		data.title     = rows[0].title;
+		data.author    = rows[0].author;
+		data.circle    = rows[0].circle;
+		data.url       = rows[0].url;
+		data.thumbnail = rows[0].thumbnail;
 
-			/* 感想のユーザー名を取得 */
-			knex.select('displayname')
-			.from('user')
-			.whereIn('id', user_id)
-			.then(function(user_rows) {
-
-				data.displayname = user_rows[0].displayname;
-				res.render('impression/i', data);
-			})
-			.catch(function(err_message) {
-				next(err_message);
-			});
-		})
-		.catch(function(err_message) {
-			next(new Error(err_message));
-		});
+		/* 感想のユーザー名を取得 */
+		return knex.select('displayname')
+		.from('user')
+		.whereIn('id', data.user_id);
+	})
+	.then(function(user_rows) {
+		data.displayname = user_rows[0].displayname;
+		res.render('impression/i', data);
 	})
 	.catch(function(err_message) {
-		next(new Error(err_message));
+		next(err_message);
 	});
 };
 
 /* 感想登録処理 */
 ImpressionController.prototype.register = function(req, res, next) {
-	/* 認証処理 */
-	if(!req.isAuthenticated()) {
-	   res.redirect(BASE_PATH);
-	}
-
 	/* 入力値 */
 	var doujinshi_id = req.body.id;
 	var body         = req.body.body;
@@ -206,11 +194,6 @@ ImpressionController.prototype.register = function(req, res, next) {
 
 /* 感想編集処理 */
 ImpressionController.prototype.edit = function(req, res, next) {
-	/* 認証処理 */
-	if(!req.isAuthenticated()) {
-	   res.redirect(BASE_PATH);
-	}
-
 	var impression_id = req.body.impression_id;
 	var doujinshi_id  = req.body.id;
 	var body          = req.body.body;
@@ -246,7 +229,7 @@ ImpressionController.prototype.edit = function(req, res, next) {
 		/* 悪意あるユーザーが他人の感想を編集してないかチェック */
 		if(rows.length === 0 || req.user !== rows[0].user_id) {
 			res.redirect(BASE_PATH);
-			return;
+			return Promise.reject(new Error('Invalid impression_id: ' + impression_id));
 		}
 
 		doujinshi_id = rows[0].doujinshi_id;

@@ -2,6 +2,7 @@
 var imagemagick = require('imagemagick-native');
 var fs = require('fs');
 var util = require('util');
+var Promise = require('bluebird');
 var config = require('config');
 var BASE_PATH = config.site.base_url;
 
@@ -27,11 +28,6 @@ UserController.prototype.edit_top = function(req, res, next) {
 		error_messages: [],
 	};
 
-	/* 認証処理 */
-	if(!req.isAuthenticated()) {
-	   res.redirect(BASE_PATH);
-	}
-
 	knex.select('displayname', 'thumbnail', 'url', 'introduction')
 	.from('user')
 	.where('id', req.user)
@@ -49,18 +45,12 @@ UserController.prototype.edit_top = function(req, res, next) {
 		res.render('user/edit_top', data);
 	})
 	.catch(function(err) {
-		next(new Error(err));
+		next(err);
 	});
 };
 
 /* ユーザーのプロフィール編集 */
 UserController.prototype.edit = function(req, res, next) {
-
-	/* 認証処理 */
-	if(!req.isAuthenticated()) {
-	   res.redirect(BASE_PATH);
-	}
-
 	/* 入力値 */
 	var update_data = {
 		displayname:  req.body.displayname,
@@ -141,49 +131,46 @@ UserController.prototype.i = function(req, res, next) {
 	var user_id = req.params.id;
 	var data ={};
 
-	/* 認証しているか否か */
-	data.isAuthenticated = req.isAuthenticated();
-
 	/* ユーザー情報を取得 */
 	knex.select('displayname', 'thumbnail', 'url', 'introduction')
 	.from('user')
 	.where('id', user_id)
 	.then(function(user_rows) {
+		/* 存在しないuser_id */
+		if(user_rows.length === 0) {
+			res.redirect(BASE_PATH);
+			return Promise.reject(new Error('Invalid user_id: ' + user_id));
+		}
+
 		data.user  = user_rows[0];
 
 		/* 最近投稿した感想情報を取得 */
-		knex.select('doujinshi_id')
+		return knex.select('doujinshi_id')
 		.from('impression')
 		.where('user_id', user_id)
 		.orderBy('id', 'desc')
 		.limit(limit_num)
-		.offset(0)
-		.then(function(impression_rows) {
-			var doujinshi_ids = [];
+		.offset(0);
+	})
+	.then(function(impression_rows) {
+		var doujinshi_ids = [];
 
-			impression_rows.forEach(function(row) {
-				doujinshi_ids.push(row.doujinshi_id);
-			});
-
-			/* 最近投稿した感想の同人誌情報を取得 */
-			knex.select('id', 'title', 'author', 'circle', 'url', 'thumbnail')
-			.from('doujinshi')
-			.whereIn('id', doujinshi_ids)
-			.then(function(doujinshi_rows) {
-				data.doujinshi = doujinshi_rows;
-
-				res.render('user/i', data);
-			})
-			.catch(function(err_message) {
-				next(new Error(err_message));
-			});
-		})
-		.catch(function(err_message) {
-			next(new Error(err_message));
+		impression_rows.forEach(function(row) {
+			doujinshi_ids.push(row.doujinshi_id);
 		});
+
+		/* 最近投稿した感想の同人誌情報を取得 */
+		return knex.select('id', 'title', 'author', 'circle', 'url', 'thumbnail')
+		.from('doujinshi')
+		.whereIn('id', doujinshi_ids);
+	})
+	.then(function(doujinshi_rows) {
+		data.doujinshi = doujinshi_rows;
+
+		res.render('user/i', data);
 	})
 	.catch(function(err_message) {
-		next(new Error(err_message));
+		next(err_message);
 	});
 };
 

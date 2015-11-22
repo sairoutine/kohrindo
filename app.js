@@ -12,7 +12,7 @@ if (!process.env.SESSION_SECRET){
 
 var express = require('express');
 var path = require('path');
-var favicon = require('serve-favicon');
+//var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
@@ -199,30 +199,32 @@ app.use(function(req, res, next) {
 });
 
 // error handlers
-
-// development error handler
-// will print stacktrace
 if (app.get('env') === 'development') {
-  app.use(function(err, req, res, next) {
-    res.status(err.status || 500);
-    res.render('error', {
-      isAuthenticated: false,
-      message: err.message,
-      error: err
-    });
-  });
+	app.use(function(err, req, res, next) {
+		// 既にredirectとかされてたら何もしない
+		if(res.headersSent) return;
+
+		res.status(err.status || 500);
+		res.render('error', {
+			isAuthenticated: false,
+			message: err.message,
+			error: err
+		});
+	});
 }
+else {
+	app.use(function(err, req, res, next) {
+		// 既にredirectとかされてたら何もしない
+		if(res.headersSent) return;
 
-// production error handler
-// no stacktraces leaked to user
-app.use(function(err, req, res, next) {
-  res.status(err.status || 500);
-  res.render('error', {
-    isAuthenticated: false,
-    message: err.message,
-    error: {}
-  });
-});
 
+		res.status(err.status || 500);
+		res.render('error', {
+			isAuthenticated: false,
+			message: err.message,
+			error: {}
+		});
+	});
+}
 
 module.exports = app;
