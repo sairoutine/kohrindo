@@ -22,7 +22,7 @@ sudo rpm --import https://packages.elastic.co/GPG-KEY-elasticsearch
 vim /etc/yum.repos.d/elasticsearch.repo
 sudo yum install elasticsearch
 chkconfig --add elasticsearch
-sudo elasticsearch start
+sudo service elasticsearch start
 # Install Kuromoji
 sudo yum install -y /usr/lib64/libssl3.so
 /usr/share/elasticsearch/bin/plugin install analysis-kuromoji
@@ -61,7 +61,7 @@ npm start
 ```
 [elasticsearch-2.0]
 name=Elasticsearch repository for 2.0 packages
-baseurl=http://packages.elastic.co/elasticsearch/2.x/centos
+baseurl=http://packages.elastic.co/elasticsearch/2.0/centos
 gpgcheck=1
 gpgkey=http://packages.elastic.co/GPG-KEY-elasticsearch
 enabled=1
@@ -95,12 +95,26 @@ vim /etc/redis.conf
 sudo service redis start
 ```
 
-### app server setu on ap001
+### elasticsearch setup on db01
+```
+# Install Java
+sudo yum install -y java-1.8.0-openjdk
+# Install ElasticSearch
+sudo rpm --import https://packages.elastic.co/GPG-KEY-elasticsearch
+vim /etc/yum.repos.d/elasticsearch.repo
+sudo yum install -y elasticsearch
+chkconfig --add elasticsearch
+sudo service elasticsearch start
+# Install Kuromoji
+sudo yum install -y /usr/lib64/libssl3.so
+/usr/share/elasticsearch/bin/plugin install analysis-kuromoji
+```
+
+
+### app server setup on ap001
 ```
 # node 0.12.2 Install
-wget http://nodejs.org/dist/v0.12.2/node-v0.12.2-linux-x64.tar.gz
-tar xvf node-v0.12.2-linux-x64.tar.gz
-cp node-v0.12.2-linux-x64/bin/node /usr/local/bin/node
+fab root_install_node12 -H localhost
 # npm Install
 sudo yum install -y epel-release
 sudo yum install -y npm --enablerepo=epel
