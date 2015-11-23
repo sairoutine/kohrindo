@@ -211,7 +211,7 @@ if (app.get('env') === 'development') {
 		if(res.headersSent) return;
 
 		res.status(err.status || 500);
-		res.render('500', {
+		res.render('500_development', {
 			message: err.message,
 			error: err
 		});
@@ -230,10 +230,7 @@ else {
 		if(res.headersSent) return;
 
 		res.status(err.status || 500);
-		res.render('500', {
-			message: err.message,
-			error: {}
-		});
+		res.render('500', {});
 	});
 }
 

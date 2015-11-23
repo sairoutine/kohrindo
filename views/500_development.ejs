@@ -5,7 +5,8 @@
 		<%= error.status %> Error
 	</div>
 	<div class="panel-body">
-		<h1 class="text-center">不明なエラーが発生しました。</h1>
+		<h1><%= message %></h1>
+		<pre><%= error.stack %></pre>
 	</div>
 </div>
 <% include _footer_index %>
