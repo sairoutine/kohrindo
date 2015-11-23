@@ -12,7 +12,7 @@
 			</div>
 			<div class="row">
 				<div class="col-md-12">
-					<%= body %>
+					<div class="well" style="white-space:pre-wrap;"><%= body %></div>
 				</div>
 			</div>
 			<div class="row">
@@ -40,26 +40,12 @@
 				<% } %>
 			</div>
 			<div class="media-body">
-				<div class="row">
-					<div class="col-md-12">
-						タイトル：<%= title %>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-md-12">
-						著者名：<%= author %>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-md-12">
-						サークル：<%= circle %>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-md-12">
-						詳細URL：<%= url %>
-					</div>
-				</div>
+				<table class="table">
+					<tr><th style="white-space: nowrap;">タイトル</th><td><a href="/doujin/i/<%= doujinshi_id %>"><%= title %></a></td></tr>
+					<tr><th style="white-space: nowrap;">著者名</th><td><%= author %></td></tr>
+					<tr><th style="white-space: nowrap;">サークル</th><td><%= circle %></td></tr>
+					<tr><th style="white-space: nowrap;">詳細URL</th><td><a href="<%= url %>"><%= url %></a></td></tr>
+				</table>
 			</div>
 		</div>
 	</div>
