@@ -61,7 +61,7 @@ npm start
 ```
 [elasticsearch-2.0]
 name=Elasticsearch repository for 2.0 packages
-baseurl=http://packages.elastic.co/elasticsearch/2.0/centos
+baseurl=http://packages.elastic.co/elasticsearch/2.x/centos
 gpgcheck=1
 gpgkey=http://packages.elastic.co/GPG-KEY-elasticsearch
 enabled=1
