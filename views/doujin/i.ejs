@@ -24,26 +24,12 @@
 				<% } %>
 			</div>
 			<div class="media-body">
-				<div class="row">
-					<div class="col-md-12">
-						タイトル：<%= title %>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-md-12">
-						著者名：<%= author %>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-md-12">
-						サークル：<%= circle %>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-md-12">
-						詳細URL：<a href="<%= url %>"><%= url %></a>
-					</div>
-				</div>
+				<table class="table">
+					<tr><th style="white-space: nowrap;">タイトル</th><td><%= title %></td></tr>
+					<tr><th style="white-space: nowrap;">著者名</th><td><%= author %></td></tr>
+					<tr><th style="white-space: nowrap;">サークル</th><td><%= circle %></td></tr>
+					<tr><th style="white-space: nowrap;">詳細URL</th><td><a href="<%= url %>"><%= url %></a></td></tr>
+				</table>
 			</div>
 		</div>
 	</div>
@@ -106,7 +92,7 @@
 				</div>
 				<div class="row">
 					<div class="col-md-12">
-						<pre class="well"><%= row.body %></pre>
+						<div class="well" style="white-space:pre-wrap;"><%= row.body %></div>
 						<p class="text-right"><a href="/impression/i/<%= row.id %>">⇛感想の詳細へ</a></span>
 					</div>
 				</div>
