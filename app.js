@@ -13,7 +13,6 @@ if (!process.env.SESSION_SECRET){
 var express = require('express');
 var path = require('path');
 //var favicon = require('serve-favicon');
-var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var session = require('express-session');
@@ -27,6 +26,7 @@ var fs = require('fs');
 var moment = require('moment');
 
 var knex = require('./lib/knex');
+var log = require('./lib/logger');
 
 var app = express();
 
@@ -40,12 +40,6 @@ app.set('view engine', 'ejs');
 // faviconの設定
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 
-if (app.get('env') === 'development') {
-	app.use(logger('dev'));
-}
-else {
-	app.use(logger('short'));
-}
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -190,22 +184,34 @@ app.get("/auth/logout", function(req, res){
 });
 
 
-// catch 404 and forward to error handler
+// 404エラー
 app.use(function(req, res, next) {
-	var err = new Error('Not Found');
-	err.status = 404;
-	next(err);
+	var user_id = req.isAuthenticated() ? req.user : 0;
+	log.error({
+		user_id: user_id,
+		path: req.originalUrl,
+		message: '404 Not Found',
+	});
+
+	res.status(404);
+	res.render('404', {});
 });
 
-// error handlers
+// 500エラー
 if (app.get('env') === 'development') {
 	app.use(function(err, req, res, next) {
+		var user_id = req.isAuthenticated() ? req.user : 0;
+		log.error({
+			user_id: user_id,
+			path: req.originalUrl,
+			message: err.stack,
+		});
+
 		// 既にredirectとかされてたら何もしない
 		if(res.headersSent) return;
 
 		res.status(err.status || 500);
-		res.render('error', {
-			isAuthenticated: false,
+		res.render('500', {
 			message: err.message,
 			error: err
 		});
@@ -213,12 +219,18 @@ if (app.get('env') === 'development') {
 }
 else {
 	app.use(function(err, req, res, next) {
+		var user_id = req.isAuthenticated() ? req.user : 0;
+		log.error({
+			user_id: user_id,
+			path: req.originalUrl,
+			message: err.stack,
+		});
+
 		// 既にredirectとかされてたら何もしない
 		if(res.headersSent) return;
 
 		res.status(err.status || 500);
-		res.render('error', {
-			isAuthenticated: false,
+		res.render('500', {
 			message: err.message,
 			error: {}
 		});
