@@ -1,6 +1,7 @@
 'use strict';
 var knex = require('../lib/knex');
 var util = require('util');
+var moment = require('moment');
 var Promise = require('bluebird');
 var config = require('config');
 var BASE_PATH = config.site.base_url;
@@ -109,7 +110,7 @@ ImpressionController.prototype.i = function(req, res, next) {
 		}
 
 		data.body         = impression_rows[0].body;
-		data.create_time  = impression_rows[0].create_time;
+		data.create_time  = moment(impression_rows[0].create_time).format("YYYY年MM月DD日 HH:mm:ss");
 		data.user_id      = impression_rows[0].user_id;
 		data.doujinshi_id = impression_rows[0].doujinshi_id;
 
@@ -165,10 +166,8 @@ ImpressionController.prototype.register = function(req, res, next) {
 		return;
 	}
 
-	require('date-utils');
-
-	var dt = new Date();
-	var now = dt.toFormat("YYYY-MM-DD HH24:MI:SS");
+	/* create_time, update_time カラム用 */
+	var now = moment().format("YYYY-MM-DD HH:mm:ss");
 
 	var impression_id;
 
@@ -217,10 +216,8 @@ ImpressionController.prototype.edit = function(req, res, next) {
 		return;
 	}
 
-	require('date-utils');
-
-	var dt = new Date();
-	var now = dt.toFormat("YYYY-MM-DD HH24:MI:SS");
+	/* create_time, update_time カラム用 */
+	var now = moment().format("YYYY-MM-DD HH:mm:ss");
 
 	knex.select('user_id', 'doujinshi_id')
 	.from('impression')

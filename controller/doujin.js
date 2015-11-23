@@ -2,6 +2,7 @@
 var imagemagick = require('imagemagick-native');
 var fs = require('fs');
 var util = require('util');
+var moment = require('moment');
 var Promise = require('bluebird');
 var config = require('config');
 var BASE_PATH = config.site.base_url;
@@ -265,10 +266,7 @@ DoujinController.prototype.edit = function(req, res, next) {
 		update_data.cover_image = 'doujin/' + req.file.filename;
 	}
 
-	require('date-utils');
-
-	var dt = new Date();
-	update_data.update_time = dt.toFormat("YYYY-MM-DD HH24:MI:SS");
+	update_data.update_time = moment().format("YYYY-MM-DD HH:mm:ss");
 
 	/* MYSQLの作品の更新 */
 	knex('doujinshi').update(update_data)
@@ -373,10 +371,7 @@ DoujinController.prototype.register_by_user = function(req, res, next) {
 		thumbnail   = 'doujin/' + thumbnail_name;
 	}
 
-	require('date-utils');
-
-	var dt = new Date();
-	var now = dt.toFormat("YYYY-MM-DD HH24:MI:SS");
+	var now = moment().format("YYYY-MM-DD HH:mm:ss");
 
 	/* auto increament で生成されたID */
 	var doujinshi_id;
@@ -431,11 +426,7 @@ DoujinController.prototype.register_by_coolier = function(req, res, next) {
 		return;
 	}
 
-
-	require('date-utils');
-
-	var dt = new Date();
-	var now = dt.toFormat("YYYY-MM-DD HH24:MI:SS");
+	var now = moment().format("YYYY-MM-DD HH:mm:ss");
 
 	var doujinshi_id, data;
 
@@ -486,10 +477,7 @@ DoujinController.prototype.register_by_melonbooks = function(req, res, next) {
 		return;
 	}
 
-	require('date-utils');
-
-	var dt = new Date();
-	var now = dt.toFormat("YYYY-MM-DD HH24:MI:SS");
+	var now = moment().format("YYYY-MM-DD HH:mm:ss");
 
 	var doujinshi_id, data;
 
@@ -540,10 +528,7 @@ DoujinController.prototype.register_by_pixiv = function(req, res, next) {
 		return;
 	}
 
-	require('date-utils');
-
-	var dt = new Date();
-	var now = dt.toFormat("YYYY-MM-DD HH24:MI:SS");
+	var now = moment().format("YYYY-MM-DD HH:mm:ss");
 
 	var doujinshi_id, data;
 

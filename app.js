@@ -24,6 +24,7 @@ var config = require('config');
 var crypto = require('crypto');
 var request = require('request');
 var fs = require('fs');
+var moment = require('moment');
 
 var knex = require('./lib/knex');
 
@@ -79,9 +80,7 @@ passport.use(new TwitterStrategy({
 			}
 			else{ /* ユーザーが存在してなければユーザー登録処理 */
 				/* 現在時刻 */
-				require('date-utils');
-				var dt = new Date();
-				var now = dt.toFormat("YYYY-MM-DD HH24:MI:SS");
+				var now = moment().format("YYYY-MM-DD HH:mm:ss");
 
 				/* TODO:拡張子はpath.extname から取得する */
 				// 画像保存用に画像IDからsha1値を計算

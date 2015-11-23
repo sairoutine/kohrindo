@@ -1,6 +1,7 @@
 'use strict';
 var doujin_info = require('../lib/external_doujin_info');
 var Promise = require('bluebird');
+var moment = require('moment');
 
 process.chdir('/home/kohrindo/kohrindo');
 var knex = require('../lib/knex');
@@ -43,9 +44,7 @@ list_urls.reduce(function(promise, list_url) {
 
 				data.register_by = 'surugaya';
 
-				require('date-utils');
-				var dt = new Date();
-				var now = dt.toFormat("YYYY-MM-DD HH24:MI:SS");
+				var now = moment().format("YYYY-MM-DD HH:mm:ss");
 				data.create_time = now;
 				data.update_time = now;
 

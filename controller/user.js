@@ -2,6 +2,7 @@
 var imagemagick = require('imagemagick-native');
 var fs = require('fs');
 var util = require('util');
+var moment= require('moment');
 var Promise = require('bluebird');
 var config = require('config');
 var BASE_PATH = config.site.base_url;
@@ -104,10 +105,8 @@ UserController.prototype.edit = function(req, res, next) {
 		update_data.thumbnail = 'user/' + thumbnail_name;
 	}
 
-	require('date-utils');
-
-	var dt = new Date();
-	update_data.update_time = dt.toFormat("YYYY-MM-DD HH24:MI:SS");
+	/* create_time, update_time カラム用 */
+	update_data.update_time = moment().format("YYYY-MM-DD HH:mm:ss");
 
 	knex('user')
 	.where('id', req.user)
