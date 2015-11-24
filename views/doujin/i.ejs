@@ -3,7 +3,9 @@
 <div class="panel panel-primary">
 	<div class="panel-heading">
 		小説詳細
+		<% if(isAuthenticated) { %>
 		<a href="/doujin/edit_top/<%= id %>"><span class="glyphicon glyphicon-pencil">　</span></a>
+		<% } %>
 	</div>
 	<div class="panel-body">
 		<div class="media">

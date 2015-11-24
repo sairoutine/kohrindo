@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "forever start -u kohrindo -l /home/kohrindo/kohrindo/log/forever.log --minUptime 1 --spinSleepTime 5000 --sourceDir /home/kohrindo/kohrindo/ --watchDirectory /home/kohrindo/kohrindo ./bin/www",
+    "start": "forever start -u kohrindo -l /home/kohrindo/kohrindo/log/forever.log --minUptime 1 --spinSleepTime 5000 --sourceDir /home/kohrindo/kohrindo/ --watch --watchDirectory /home/kohrindo/kohrindo ./bin/www",
     "resetdb": "mysql -uroot < ./bin/db_setup.sql && mysql -uroot < ./bin/load_surugaya_doujinshi_csv.sql && redis-cli KEYS 'kohrindo:*' | xargs redis-cli DEL"
   },
   "dependencies": {
