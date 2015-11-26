@@ -137,6 +137,9 @@ vim ./start_kohrindo.sh
 chmod 0700 ./start_kohrindo.sh
 ```
 
+### Install Mackerel
+To see https://mackerel.io/orgs/sairoutine/instruction-agent
+
 ### integrating release
 ```
 git pull --rebase
