@@ -80,11 +80,13 @@
 		<% impression.forEach(function(row){ %>
 		<div class="media">
 			<div class="media-left media-middle">
+				<a href="/user/i/<%= row.user_id %>">
 				<% if(row.thumbnail) { %>
 				<img src="/img/<%= row.thumbnail %>" width="48" height="48" class="media-object img-thumbnail" alt="プロフィール画像">
 				<% } else { %>
 				<img src="/img/noimage.gif" width="48" height="48" class="media-object img-thumbnail" alt="プロフィール画像">
 				<% } %>
+			</a>
 			</div>
 			<div class="media-body">
 				<div class="row">
