@@ -9,6 +9,9 @@ if (!process.env.TWITTER_CONSUMER_SECRET){
 if (!process.env.SESSION_SECRET){
 	throw new Error('SESSION_SECRET を環境変数に指定してください。');
 }
+if (!process.env.SLACK_INCOMING_WEBHOOK){
+	throw new Error('SLACK_INCOMING_WEBHOOK を環境変数に指定してください。');
+}
 
 var express = require('express');
 var path = require('path');

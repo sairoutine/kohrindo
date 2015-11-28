@@ -8,4 +8,8 @@ var help = new HelpController();
 /* ヘルプ */
 router.get('/', help.index);
 
+/* ご意見・ご要望の投稿 */
+router.post('/contact', help.contact);
+
+
 module.exports = router;
