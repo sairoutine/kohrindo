@@ -40,6 +40,7 @@
 					</tbody>
 				</table>
 			</div>
+
 			<% if (!isAuthenticated) { %>
 			<div class="panel panel-primary">
 				<div class="panel-heading">
@@ -51,7 +52,20 @@
 				</div>
 			</div>
 			<% } %>
-		</div>
 
+			<div class="panel panel-primary">
+				<div class="panel-heading">
+					ご意見・ご要望など
+				</div>
+				<div class="panel-body">
+					<form action="/help/contact" method="POST" id="contact-form">
+					<div class="form-group">
+						<textarea class="form-control" name="text" rows="8" placeholder="サービスへのご意見・ご要望をお寄せください"></textarea>
+					</div>
+					<input type="submit" id="contact-submit" class="btn btn-success btn-block" value="送信">
+					</form>
+				</div>
+			</div>
+		</div>
 	</div>
 </div>
