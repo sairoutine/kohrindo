@@ -9,5 +9,7 @@ addons:
         - libmagick++-dev
 services:
     - mysql
-    - redis
+    - redis-server
     - elasticsearch
+before_script:
+    - sleep 10
