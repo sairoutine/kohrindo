@@ -7,3 +7,7 @@ addons:
     apt:
         packages:
         - libmagick++-dev
+services:
+    - mysql
+    - redis
+    - elasticsearch
