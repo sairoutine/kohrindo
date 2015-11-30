@@ -75,7 +75,10 @@ ElasticSearchModel.search_by_all = function(search_word, size, from) {
 	
 	var query =  {
 		match: {
-			_all: search_word,
+			_all: {
+				query: search_word,
+				operator : "and",
+			}
 		}
 	};
 
