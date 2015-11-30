@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/sairoutine/kohrindo.svg)](https://travis-ci.org/sairoutine/kohrindo)
+
 # Development
 ### SETUP
 ```
