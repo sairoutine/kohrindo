@@ -16,36 +16,27 @@
 		最近投稿された感想
 	</div>
 	<div class="panel-body">
-		<ul class="media-list">
 		<% impression.forEach(function(row) { %>
-		<li class="media">
-			<div class="media-left media-middle">
+		<div class="row">
+			<div class="col-md-3">
 				<a href="/doujin/i/<%= row.doujinshi.id %>">
 				<% if(row.doujinshi.thumbnail) { %>
-				<img src="/img/<%= row.doujinshi.thumbnail %>" class="media-object img-thumbnail" alt="表紙画像">
+				<img src="/img/<%= row.doujinshi.thumbnail %>" class="img-thumbnail center-block" alt="<%= row.doujinshi.title %>">
 				<% } else { %>
-				<img src="/img/noimage.gif" class="media-object img-thumbnail" alt="表紙画像">
+				<img src="/img/noimage.gif" class="img-thumbnail center-block" alt="<%= row.doujinshi.title %>">
 				<% } %>
 				</a>
-			</div>
-			<div class="media-body">
-				<div class="media-head">
-					<div class="row">
-						<div class="col-md-6">
-							小説名：<strong><a href="/doujin/i/<%= row.doujinshi.id %>"><%= row.doujinshi.title %></a></strong><br />
-						</div>
-						<div class="col-md-6">
-							著者：<%= row.doujinshi.author %>
-						</div>
-					</div>
+				<div class="text-center">
+					<h4><a href="/doujin/i/<%= row.doujinshi.id %>"><%= row.doujinshi.title %></a></h4>
 				</div>
+			</div>
+			<div class="col-md-9">
 				<div class="well" style="white-space:pre-wrap;"><%= row.body %></div>
 				<p class="text-right"><a href="/impression/i/<%= row.id %>">⇛感想の詳細へ</a></span>
 			</div>
-		</li>
+		</div>
 		<hr />
 		<% }); %>
-		</ul>
 		<p class="text-right"><a href="/impression/list">もっと見る</a></p>
 	</div>
 </div>

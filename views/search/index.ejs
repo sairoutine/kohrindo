@@ -10,13 +10,13 @@
 		<div class="col-md-3">
 				<a href="/doujin/i/<%= doujinshi[i].id %>">
 				<% if (doujinshi[i].thumbnail) { %>
-				<img src="/img/<%= doujinshi[i].thumbnail %>" class="img-thumbnail" alt="表紙画像">
+				<img src="/img/<%= doujinshi[i].thumbnail %>" class="img-thumbnail center-block" alt="<%= doujinshi[i].title %>">
 				<% } else { %>
-				<img src="/img/doujin/noimage.png" class="img-thumbnail" alt="表紙画像">
+				<img src="/img/doujin/noimage.png" class="img-thumbnail center-block" alt="<%= doujinshi[i].title %>">
 				<% } %>
 				</a>
-				<h3><a href="/doujin/i/<%= doujinshi[i].id %>"><%= doujinshi[i].title %></a></h3>
-				<p><%= doujinshi[i].author %></p>
+				<h3 class="text-center"><a href="/doujin/i/<%= doujinshi[i].id %>"><%= doujinshi[i].title %></a></h3>
+				<p class="text-center"><%= doujinshi[i].author %></p>
 			</div>
 			<% if(i % 4 === 3){ %>
 			</div><div class="row">

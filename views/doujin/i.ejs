@@ -8,29 +8,29 @@
 		<% } %>
 	</div>
 	<div class="panel-body">
-		<div class="media">
-			<div class="media-left media-middle">
+		<div class="row">
+			<div class="col-md-3">
 				<% if(thumbnail && cover_image) { %>
-				<a data-toggle="modal" data-target=".bs-example-modal-sm" href="#"><img src="/img/<%= thumbnail %>" alt="<%= title %>" class="media-object img-thumbnail"></a>
-				<div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
-					<div class="modal-dialog modal-sm">
+				<a data-toggle="modal" data-target=".cover-image-modal" href="#"><img src="/img/<%= thumbnail %>" alt="<%= title %>" class="img-thumbnail center-block"></a>
+				<div class="modal fade cover-image-modal" role="dialog" aria-hidden="true">
+					<div class="modal-dialog">
 						<div class="modal-content text-center">
 							<img src="/img/<%= cover_image %>" width="100%" data-dismiss="modal">
 						</div>
 					</div>
 				</div>
 				<% } else if (thumbnail) { %>
-				<img src="/img/<%= thumbnail %>" class="media-object img-thumbnail" alt="<%= title %>">
+				<img src="/img/<%= thumbnail %>" class="img-thumbnail center-block" alt="<%= title %>">
 				<% } else { %>
-				<img src="/img/doujin/noimage.png" class="media-object img-thumbnail" alt="表紙画像">
+				<img src="/img/doujin/noimage.png" class="img-thumbnail center-block" alt="表紙画像">
 				<% } %>
 			</div>
-			<div class="media-body">
+			<div class="col-md-9">
 				<table class="table">
-					<tr><th style="white-space: nowrap;">タイトル</th><td><%= title %></td></tr>
-					<tr><th style="white-space: nowrap;">著者名</th><td><%= author %></td></tr>
-					<tr><th style="white-space: nowrap;">サークル</th><td><%= circle %></td></tr>
-					<tr><th style="white-space: nowrap;">詳細URL</th><td><a href="<%= url %>"><%= url %></a></td></tr>
+					<tr><th style="white-space: nowrap;">タイトル</th><td style="word-break: break-word"><%= title %></td></tr>
+					<tr><th style="white-space: nowrap;">著者名</th><td style="word-break: break-word"><%= author %></td></tr>
+					<tr><th style="white-space: nowrap;">サークル</th><td style="word-break: break-word"><%= circle %></td></tr>
+					<tr><th style="white-space: nowrap;">詳細URL</th><td style="word-break: break-word"><a href="<%= url %>"><%= url %></a></td></tr>
 				</table>
 			</div>
 		</div>
@@ -77,34 +77,27 @@
 		<% } %>
 		<hr />
 
-		<% impression.forEach(function(row){ %>
-		<div class="media">
-			<div class="media-left media-middle">
+		<% impression.forEach(function(row) { %>
+		<div class="row">
+			<div class="col-md-2">
 				<a href="/user/i/<%= row.user_id %>">
 				<% if(row.thumbnail) { %>
-				<img src="/img/<%= row.thumbnail %>" width="48" height="48" class="media-object img-thumbnail" alt="プロフィール画像">
+				<img src="/img/<%= row.thumbnail %>" class="img-thumbnail center-block" alt="<%= row.displayname %>">
 				<% } else { %>
-				<img src="/img/noimage.gif" width="48" height="48" class="media-object img-thumbnail" alt="プロフィール画像">
+				<img src="/img/noimage.gif" class="img-thumbnail center-block" alt="<%= row.displayname %>">
 				<% } %>
-			</a>
+				</a>
+				<div class="text-center">
+					<a href="/user/i/<%= row.user_id %>"><%= row.displayname %></a>
+				</div>
 			</div>
-			<div class="media-body">
-				<div class="row">
-					<div class="col-md-12 text-left">
-						<a href="/user/i/<%= row.user_id %>"><%= row.displayname %></a>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-md-12">
-						<div class="well" style="white-space:pre-wrap;"><%= row.body %></div>
-						<p class="text-right"><a href="/impression/i/<%= row.id %>">⇛感想の詳細へ</a></span>
-					</div>
-				</div>
+			<div class="col-md-10">
+				<div class="well" style="white-space:pre-wrap;"><%= row.body %></div>
+				<p class="text-right"><a href="/impression/i/<%= row.id %>">⇛感想の詳細へ</a></span>
 			</div>
 		</div>
 		<hr />
-		<% }) %>
-
+		<% }); %>
 		<% include ../_pagination %>
 	</div>
 </div>

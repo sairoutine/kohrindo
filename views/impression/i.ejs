@@ -31,20 +31,22 @@
 		小説詳細
 	</div>
 	<div class="panel-body">
-		<div class="media">
-			<div class="media-left media-middle">
+		<div class="row">
+			<div class="col-md-3">
+				<a href="/doujin/i/<%= doujinshi_id %>">
 				<% if(thumbnail) { %>
-				<img src="/img/<%= thumbnail %>" class="media-object img-thumbnail" alt="表紙画像">
+				<img src="/img/<%= thumbnail %>" class="img-thumbnail center-block" alt="<%= title %>">
 				<% } else { %>
-				<img src="/img/noimage.gif" class="media-object img-thumbnail" alt="表紙画像">
+				<img src="/img/noimage.gif" class="img-thumbnail center-block" alt="表紙画像">
 				<% } %>
+				</a>
 			</div>
-			<div class="media-body">
+			<div class="col-md-9">
 				<table class="table">
-					<tr><th style="white-space: nowrap;">タイトル</th><td><a href="/doujin/i/<%= doujinshi_id %>"><%= title %></a></td></tr>
-					<tr><th style="white-space: nowrap;">著者名</th><td><%= author %></td></tr>
-					<tr><th style="white-space: nowrap;">サークル</th><td><%= circle %></td></tr>
-					<tr><th style="white-space: nowrap;">詳細URL</th><td><a href="<%= url %>"><%= url %></a></td></tr>
+					<tr><th style="white-space: nowrap;">タイトル</th><td style="word-break: break-word"><a href="/doujin/i/<%= doujinshi_id %>"><%= title %></a></td></tr>
+					<tr><th style="white-space: nowrap;">著者名</th><td style="word-break: break-word"><%= author %></td></tr>
+					<tr><th style="white-space: nowrap;">サークル</th><td style="word-break: break-word"><%= circle %></td></tr>
+					<tr><th style="white-space: nowrap;">詳細URL</th><td style="word-break: break-word"><a href="<%= url %>"><%= url %></a></td></tr>
 				</table>
 			</div>
 		</div>
