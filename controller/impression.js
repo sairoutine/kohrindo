@@ -97,7 +97,9 @@ ImpressionController.prototype.i = function(req, res, next) {
 	var impression_id = req.params.id;
 
 	/* view に渡すパラメータ */
-	var data = {};
+	var data = {
+		this_url: BASE_PATH + "impression/i/" + impression_id
+	};
 
 	/* 感想情報を取得 */
 	knex.select('doujinshi_id', 'user_id', 'body', 'create_time')

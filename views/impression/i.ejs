@@ -1,5 +1,23 @@
 <% include ../_header %>
 <% include ../_header_index %>
+
+<% /* 投稿に成功したらツイッターに投稿するフォーム表示 */ %>
+<% /* あんまよろしくないけどuser_messagesに含めたい */ %>
+<% if (typeof user_messages !== 'undefined' && user_messages.length > 0) {  %>
+	<% for(var i = 0; i < user_messages.length; i++) { %>
+		<% if (user_messages[i].type === "success") { %>
+<div class="alert alert-info" role="alert"><a style="display: block;width: 100%;height: 100%;" href="http://twitter.com/intent/tweet?text=<%= encodeURIComponent("「" + title + "」の感想を投稿しました。 ") + this_url %>&via=korindo_syoten&related=korindo_syoten"
+ onClick="window.open(encodeURI(decodeURI(this.href)),
+ 'tweetwindow',
+ 'width=550, height=450, personalbar=0, toolbar=0, scrollbars=1, resizable=1'
+); return false;">
+<span class="glyphicon glyphicon-share" aria-hidden="true"></span>&nbsp;Twitterに投稿する
+</a></div>
+			<% break; %>
+		<% } %>
+	<% } %>
+<% } %>
+
 <div class="panel panel-primary">
 	<div class="panel-heading">
 		感想
