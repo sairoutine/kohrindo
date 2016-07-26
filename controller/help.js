@@ -32,11 +32,12 @@ HelpController.prototype.contact = function(req, res, next) {
 	var slack = new Slack({hook_url: process.env.SLACK_INCOMING_WEBHOOK});
 
 	// process.env.slack_incoming_webhook
+	/*
 	slack.send("@sairoutine\nご意見・ご要望\n", [{
 		color: "#36a64f",
 		text: text
 	}]);
-	
+	*/	
 	res.redirect(BASE_PATH);
 };
 
