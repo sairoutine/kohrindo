@@ -20,7 +20,7 @@
     "elasticsearch": "9.0.1",
     "express": "4.13.0",
     "express-session": "1.12.1",
-    "imagemagick-native": "1.8.0",
+    "imagemagick-native": "1.9.2",
     "knex": "0.9.0",
     "moment": "2.11.2",
     "multer": "1.1.0",
